@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="scmManager" name="scmManager" class="com.blink.scm.BlinkSCMManager" init-method="init">
+		<property name="username"  value="${scm.username}"></property>
+		<property name="password" value="${scm.password}"></property>
+		<property name="remoteRepoUrl" value="${scm.url}"></property>
+		<property name="localWorkspace" value="${scm.localWorkspace}"></property>
+	</bean>
+	
+	<!-- 
+	<property name="username"  value="admin"></property>
+		<property name="password" value="admin"></property>
+		<property name="remoteRepoUrl" value="https://localhost:8443/"></property>
+		<property name="localWorkspace" value="."></property>
+	 -->
+
+</beans>

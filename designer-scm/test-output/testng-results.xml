@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="1" passed="1">
+  <reporter-output>
+  </reporter-output>
+  <suite name="Default suite" duration-ms="4409" started-at="2013-03-29T08:43:11Z" finished-at="2013-03-29T08:43:16Z">
+    <groups>
+    </groups>
+    <test name="Default test" duration-ms="4409" started-at="2013-03-29T08:43:11Z" finished-at="2013-03-29T08:43:16Z">
+      <class name="com.blink.scm.SCMManagerTest">
+        <test-method status="PASS" signature="beforeSuite()[pri:0, instance:com.blink.scm.SCMManagerTest@627b524c]" name="beforeSuite" is-config="true" duration-ms="7" started-at="2013-03-29T14:13:11Z" finished-at="2013-03-29T14:13:11Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeSuite -->
+        <test-method status="PASS" signature="beforeTest()[pri:0, instance:com.blink.scm.SCMManagerTest@627b524c]" name="beforeTest" is-config="true" duration-ms="0" started-at="2013-03-29T14:13:11Z" finished-at="2013-03-29T14:13:11Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeTest -->
+        <test-method status="PASS" signature="beforeClass()[pri:0, instance:com.blink.scm.SCMManagerTest@627b524c]" name="beforeClass" is-config="true" duration-ms="1144" started-at="2013-03-29T14:13:11Z" finished-at="2013-03-29T14:13:13Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeClass -->
+        <test-method status="PASS" signature="beforeMethod()[pri:0, instance:com.blink.scm.SCMManagerTest@627b524c]" name="beforeMethod" is-config="true" duration-ms="0" started-at="2013-03-29T14:13:13Z" finished-at="2013-03-29T14:13:13Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeMethod -->
+        <test-method status="PASS" signature="scmTest()[pri:0, instance:com.blink.scm.SCMManagerTest@627b524c]" name="scmTest" duration-ms="3255" started-at="2013-03-29T14:13:13Z" finished-at="2013-03-29T14:13:16Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- scmTest -->
+        <test-method status="PASS" signature="afterMethod()[pri:0, instance:com.blink.scm.SCMManagerTest@627b524c]" name="afterMethod" is-config="true" duration-ms="1" started-at="2013-03-29T14:13:16Z" finished-at="2013-03-29T14:13:16Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterMethod -->
+        <test-method status="PASS" signature="afterClass()[pri:0, instance:com.blink.scm.SCMManagerTest@627b524c]" name="afterClass" is-config="true" duration-ms="0" started-at="2013-03-29T14:13:16Z" finished-at="2013-03-29T14:13:16Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterClass -->
+        <test-method status="PASS" signature="afterTest()[pri:0, instance:com.blink.scm.SCMManagerTest@627b524c]" name="afterTest" is-config="true" duration-ms="0" started-at="2013-03-29T14:13:16Z" finished-at="2013-03-29T14:13:16Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterTest -->
+        <test-method status="PASS" signature="afterSuite()[pri:0, instance:com.blink.scm.SCMManagerTest@627b524c]" name="afterSuite" is-config="true" duration-ms="0" started-at="2013-03-29T14:13:16Z" finished-at="2013-03-29T14:13:16Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterSuite -->
+      </class> <!-- com.blink.scm.SCMManagerTest -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>
