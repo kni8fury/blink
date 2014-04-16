@@ -10,6 +10,7 @@ public class LDAPConfig extends BaseBlinkModel{
 	private String userFilter;
 	private String authzIdentity;
 	
+	
 	public String getUserProvider() {
 		return userProvider;
 	}
