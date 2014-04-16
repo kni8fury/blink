@@ -2,7 +2,11 @@ package com.blink;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -15,6 +19,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.blink.designer.model.App;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
@@ -36,6 +41,7 @@ public abstract class AbstractAppGenerator implements AppGenerator{
 	private JCodeModel codeModel ;
 	protected String serviceName;
 	private File projectRepository;
+	protected String repo;
 	private JDefinedClass config;
 	private JDefinedClass webConfig;
 
@@ -53,12 +59,13 @@ public abstract class AbstractAppGenerator implements AppGenerator{
 		this.pathName = getPathName(packageName);
 		this.packageName = packageName;
 		this.serviceName = serviceName;
+		this.repo=fileRepository;
 		this.projectRepository = new File(fileRepository);
 	}
 
 	protected void print() {
 		for(String clazz: classesNameForProcessing) {
-			System.out.println(clazz);
+			System.out.println("classes for processing: "+clazz);
 		}
 	}
 
@@ -86,7 +93,10 @@ public abstract class AbstractAppGenerator implements AppGenerator{
 	private void createClasses(JCodeModel jCodeModel,Class<?> clazz) throws JClassAlreadyExistsException, IOException {
 		createDTOClasses(jCodeModel,clazz);
 		createDOClasses(jCodeModel,clazz);
+		//createBizClasses(jCodeModel,clazz);
 	}
+	
+	
 
 	protected void createGetter(JDefinedClass definedClass, Field field, PackageType suffix)  {
 		String fieldName = field.getName();
@@ -274,7 +284,7 @@ public abstract class AbstractAppGenerator implements AppGenerator{
 
 	protected abstract JDefinedClass createBizFacade(JCodeModel codeModel);
 	protected abstract JDefinedClass createDAOFacade(JCodeModel codeModel);
-	protected abstract JDefinedClass createConfig(JDefinedClass configClass) ;
+	protected abstract JDefinedClass createConfig(JDefinedClass configClass,String s,App app) throws FileNotFoundException, IOException ;
 	protected abstract JDefinedClass createServiceFacade(JCodeModel jCodeModel) throws JClassAlreadyExistsException, IOException ;
 	protected abstract void postConfig(JDefinedClass configClass);
 	protected abstract void createDOClasses(JCodeModel jCodeModel,Class<?> clazz)throws JClassAlreadyExistsException, IOException ; 
@@ -284,13 +294,18 @@ public abstract class AbstractAppGenerator implements AppGenerator{
 		codeModel.build(new FileCodeWriter(projectRepository));
 	}
 
-	public JDefinedClass generateConfig() {
+	public JDefinedClass generateConfig(App app) {
 		try {
 			JDefinedClass definedClass = codeModel._class(getPackageName()+"config." + getServiceName()+"Config");
 			config = definedClass;
-			webConfig = createConfig(definedClass);
+			webConfig = createConfig(definedClass,repo,app);
+			
 			return definedClass;
 		} catch (JClassAlreadyExistsException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return null;  

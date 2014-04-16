@@ -10,7 +10,8 @@
 			<property name="hibernate.connection.username" value="blink" />
 			<property name="hibernate.connection.password" value="password" /> -->
 			<property name="hibernate.hbm2ddl.auto" value="create-drop" /> 
-			<property name="hibernate.show.sql" value="true"/>
+			<property name="hibernate.show_sql" value="true"/>
+			
 		</properties>
 	</persistence-unit>
 </persistence>

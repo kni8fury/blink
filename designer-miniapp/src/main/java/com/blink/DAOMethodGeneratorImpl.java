@@ -12,19 +12,23 @@ public class DAOMethodGeneratorImpl implements DAOMethodGenerator{
 	JFieldVar entityManagerField ;
 
 	public void generateAllDAOMethods(JDefinedClass serviceClass,JDefinedClass daoDataClass) {
-		if( entityManagerField == null)
-			entityManagerField = serviceClass.field(JMod.PRIVATE, javax.persistence.EntityManager.class, "entityManager");
+		
+				if( entityManagerField == null)
+				{
+			    entityManagerField = serviceClass.field(JMod.PRIVATE, javax.persistence.EntityManager.class, "entityManager");
+				entityManagerField.annotate(javax.persistence.PersistenceContext.class);
+				}
 
-		getCreateDAOMethod(serviceClass,daoDataClass);
-
-		getReadDAOMethod(serviceClass,daoDataClass);
+		
+        getCreateDAOMethod(serviceClass,daoDataClass);
+        getReadDAOMethod(serviceClass,daoDataClass);
 		getUpdateDAOMethod(serviceClass,daoDataClass);
 		getDeleteDAOMethod(serviceClass,daoDataClass);
 	}
 
 	public void getCreateDAOMethod(JDefinedClass serviceClass,JDefinedClass daoDataClass) {
 		//serviceClass.
-		JMethod method = serviceClass.method(JMod.PUBLIC, daoDataClass, "create"+daoDataClass.name());
+		JMethod method = serviceClass.method(JMod.PUBLIC, daoDataClass, "create"+CodeUtil.upperCamelCase(daoDataClass.name()));
 		method.param(daoDataClass, CodeUtil.camelCase(daoDataClass.name()));
 
 		method.body().directStatement("entityManager.persist("+ CodeUtil.camelCase(daoDataClass.name())+");");
@@ -35,15 +39,15 @@ public class DAOMethodGeneratorImpl implements DAOMethodGenerator{
 
 	public void getReadDAOMethod(JDefinedClass serviceClass,JDefinedClass daoDataClass) {
 		
-		JMethod method = serviceClass.method(JMod.PUBLIC, daoDataClass, "get"+daoDataClass.name());
+		JMethod method = serviceClass.method(JMod.PUBLIC, daoDataClass, "get"+CodeUtil.upperCamelCase(daoDataClass.name()));
 		method.param(Long.class, "id");
-		method.body().directStatement("return entityManager.find("+ daoDataClass.name()+".class,id);");
+		method.body().directStatement("return entityManager.find("+ daoDataClass.fullName() +".class,id);");
 
 	}
 
 	public void getUpdateDAOMethod(JDefinedClass serviceClass,JDefinedClass daoDataClass) {
 		
-		JMethod method = serviceClass.method(JMod.PUBLIC, daoDataClass, "update"+daoDataClass.name());
+		JMethod method = serviceClass.method(JMod.PUBLIC, daoDataClass, "update"+CodeUtil.upperCamelCase(daoDataClass.name()));
 		method.param(daoDataClass, CodeUtil.camelCase(daoDataClass.name()));
 
 		method.body().directStatement("return entityManager.merge(" + CodeUtil.camelCase(daoDataClass.name())+");");
@@ -51,10 +55,10 @@ public class DAOMethodGeneratorImpl implements DAOMethodGenerator{
 	}
 
 	public void getDeleteDAOMethod(JDefinedClass serviceClass,JDefinedClass daoDataClass) {
-		JMethod method = serviceClass.method(JMod.PUBLIC, void.class, "delete"+daoDataClass.name());
+		JMethod method = serviceClass.method(JMod.PUBLIC, void.class, "delete"+CodeUtil.upperCamelCase(daoDataClass.name()));
 		method.param(Long.class, "id");
-        
-		method.body().directStatement("entityManager.remove("+ daoDataClass.name()+".class);");
+        method.body().directStatement(daoDataClass.fullName()+" "+daoDataClass.name()+"=entityManager.find("+ daoDataClass.fullName() +".class,id);");
+		method.body().directStatement("entityManager.remove("+daoDataClass.name()+");");
 	}
 
 }

@@ -14,18 +14,24 @@ import java.util.jar.JarOutputStream;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
 import com.blink.designer.model.App;
+import com.blink.designer.model.AppConfig;
+import com.blink.designer.model.DBConfig;
 import com.blink.designer.model.Entity;
 import com.blink.designer.model.EntityAttribute;
 import com.blink.designer.model.Type;
 import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JFieldVar;
+import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JPackage;
 import com.sun.codemodel.JType;
@@ -47,7 +53,6 @@ public class ModelGenerator {
 		for( Entity entity: entities) {
 			generateModel(codeModel,entity,app);
 		}
-
 		File srcDirectory = new File(srcLocation); //getTempDirectory();
 		codeModel.build(srcDirectory);
 
@@ -148,9 +153,25 @@ public class ModelGenerator {
 
 		for(EntityAttribute entityAttribute : entity.getEntityAttributes()) {
 			entityClass.field(JMod.PRIVATE, getType(codeModel,entityAttribute.getType().getName() ), entityAttribute.getName());
+			String fieldName =entityAttribute .getName();
+			String typeName = entityAttribute.getType().getName();
+			
+            String getterName = ("java.lang.Boolean".equals(typeName) ? "is" : "get")+ String.valueOf(fieldName.charAt(0)).toUpperCase() + fieldName.substring(1);
+			JMethod getterMethod = entityClass.method(JMod.PUBLIC, getType(codeModel,entityAttribute.getType().getName() ),getterName );
+			getterMethod.body()._return(JExpr.ref(fieldName));
+			String setterName = ("java.lang.Boolean".equals(typeName) ? "is" : "set")+ String.valueOf(fieldName.charAt(0)).toUpperCase() + fieldName.substring(1);
+			JMethod setterMethod = entityClass.method(JMod.PUBLIC,void.class,setterName );
+			setterMethod.param(getType(codeModel,entityAttribute.getType().getName() ), fieldName);
+			setterMethod.body().assign(JExpr.refthis(fieldName), JExpr.ref(fieldName));
+			}
+		    /*JFieldVar f=entityClass.field(JMod.PRIVATE, long.class,"id");
+			JMethod getmethod=entityClass.method(JMod.PUBLIC, long.class  ,"getId" );
+			getmethod.body()._return(f);
+	      	JMethod setmethod=entityClass.method(JMod.PUBLIC, void.class  ,"setId" );
+			setmethod.param(long.class,"id");
+			setmethod.body().assign(JExpr.refthis("id"), JExpr.ref("id"));*/
 		}
-	}
-
+	
 
 	private JType getType(JCodeModel codeModel, String name ) throws ClassNotFoundException {
 		Type type = (Type) entityManager.createQuery("from com.blink.designer.model.Type where name = '" + name+"'").getSingleResult() ;

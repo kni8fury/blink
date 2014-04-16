@@ -25,7 +25,6 @@ import com.blink.util.TreeNode;
 import com.google.gson.Gson;
 
 
-
 @Path("/{entitytype}")
 public class CRUDService {
 

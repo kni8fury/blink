@@ -2,8 +2,17 @@ package com.blink;
 
 import static com.blink.CodeUtil.*;
 
+import org.dozer.DozerBeanMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.jpa.JpaTransactionManager;
+
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JClass;
+import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JExpression;
 import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMethod;
@@ -11,12 +20,17 @@ import com.sun.codemodel.JMod;
 import com.sun.codemodel.JVar;
 
 public class BizMethodGeneratorImpl implements BizMethodGenerator{
-
 	JFieldVar mapperField; 
 
 	public void generateAllBizMethods(JDefinedClass serviceClass, Class<?> bizClass) {
+		JCodeModel codemodel=serviceClass.owner();
+		
 		if( mapperField == null)
+		{
 			mapperField = serviceClass.field(JMod.PRIVATE,org.dozer.Mapper.class, "mapper");
+			mapperField.annotate(Autowired.class);
+		}
+		
 		getCreateBizMethod(serviceClass,bizClass);
 		getReadBizMethod(serviceClass,bizClass);
 		getUpdateBizMethod(serviceClass,bizClass);
@@ -26,7 +40,7 @@ public class BizMethodGeneratorImpl implements BizMethodGenerator{
 	public void getCreateBizMethod(JDefinedClass serviceClass, Class<?> bizClass) {
 
 		JClass definedBizClass = serviceClass.owner().ref(bizClass);
-		JMethod method  = serviceClass.method(JMod.PUBLIC, definedBizClass, "create"+ bizClass.getSimpleName());
+		JMethod method  = serviceClass.method(JMod.PUBLIC, definedBizClass, "create"+ CodeUtil.upperCamelCase(bizClass.getSimpleName()));
 		JVar input= method.param(definedBizClass, CodeUtil.camelCase(bizClass.getSimpleName()));
 
 		JVar doField = getMapperStatements(method,definedBizClass,input,PackageType.DO);
@@ -41,7 +55,7 @@ public class BizMethodGeneratorImpl implements BizMethodGenerator{
 
 	public void getReadBizMethod(JDefinedClass serviceClass, Class<?> bizClass) {
 		JClass definedBizClass = serviceClass.owner().ref(bizClass);
-		JMethod method  = serviceClass.method(JMod.PUBLIC, bizClass, "get"+ bizClass.getSimpleName());
+		JMethod method  = serviceClass.method(JMod.PUBLIC, bizClass, "get"+ CodeUtil.upperCamelCase(bizClass.getSimpleName()));
 	    JVar param = method.param(Long.class,"id");
 
 		JClass doClass = definedBizClass.owner().ref(getDOFromBiz(definedBizClass,PackageType.DO));
@@ -56,7 +70,7 @@ public class BizMethodGeneratorImpl implements BizMethodGenerator{
 
 	public void getUpdateBizMethod(JDefinedClass serviceClass, Class<?> bizClass) {
 		JClass definedBizClass = serviceClass.owner().ref(bizClass);
-		JMethod method  = serviceClass.method(JMod.PUBLIC, bizClass, "update"+ bizClass.getSimpleName());
+		JMethod method  = serviceClass.method(JMod.PUBLIC, bizClass, "update"+ CodeUtil.upperCamelCase(bizClass.getSimpleName()));
 		JVar input = method.param(bizClass,CodeUtil.camelCase(bizClass.getSimpleName()));
 
 		JVar doField = getMapperStatements(method,definedBizClass,input,PackageType.DO);
@@ -69,7 +83,7 @@ public class BizMethodGeneratorImpl implements BizMethodGenerator{
 	}
 
 	public void getDeleteBizMethod(JDefinedClass serviceClass, Class<?> bizClass) {
-		JMethod method  = serviceClass.method(JMod.PUBLIC, void.class, "delete"+ bizClass.getSimpleName());
+		JMethod method  = serviceClass.method(JMod.PUBLIC, void.class, "delete"+ CodeUtil.upperCamelCase(bizClass.getSimpleName()));
 		JVar param = method.param(Long.class, "id");
 		
 		JDefinedClass doFacade = GeneratorContext.getFacade(PackageType.DO);

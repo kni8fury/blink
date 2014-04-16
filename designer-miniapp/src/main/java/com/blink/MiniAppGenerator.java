@@ -2,12 +2,14 @@ package com.blink;
 
 import static com.blink.CodeUtil.*;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 
 import com.blink.designer.model.App;
@@ -26,7 +28,8 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 	private ServiceMethodGenerator serviceGenerator;
 	private BizMethodGenerator bizMethodGenerator;
 	private DAOMethodGenerator daoMethodGenerator;	
-	private ConfigGenerator configGenerator;  
+	@Autowired
+	private ConfigGeneratorImpl configGeneratorImpl;  
 	
 	public MiniAppGenerator() {
 		init();
@@ -41,21 +44,22 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 		serviceGenerator = new ServiceMethodGeneratorImpl();
 		bizMethodGenerator = new BizMethodGeneratorImpl();
 		daoMethodGenerator = new DAOMethodGeneratorImpl();
-		configGenerator = new ConfigGeneratorImpl();	
+		//configGenerator = new ConfigGeneratorImpl();	
 	}
 	
 	public void generateApp(App app, String repositoryFile) throws AppGenerationError {
 		
 		init(app.getBasePackage(), app.getName(),repositoryFile);
-		generateApp();
+		generateApp(app);
 		
 	}
 	
-	public void generateApp() throws AppGenerationError {
+	public void generateApp(App app) throws AppGenerationError {
 		try {
 			generateBeans();
 			try {
-				JDefinedClass configClass = generateConfig();
+				
+				JDefinedClass configClass = generateConfig(app);
 				JDefinedClass doFacade = generatDAOFacade();
 				GeneratorContext.registerFacade(PackageType.DO,doFacade );
 				JDefinedClass bizFacade = generateBizFacade();
@@ -77,7 +81,7 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 	}
 
 	protected void postConfig(JDefinedClass configClass) {
-		configGenerator.postConfig(configClass);	
+		configGeneratorImpl.postConfig(configClass);	
 	}
 	@Override
 	protected void createDOClasses(JCodeModel codeModel,Class<?> clazz) throws JClassAlreadyExistsException, IOException {
@@ -119,13 +123,16 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 		for ( int i=0 ; i < fields.length; i++) {
 			Field field = fields[i];
 			if( field.getType().getName().startsWith(getPackageName())) {
-				foo.field(JMod.PRIVATE, getDefinedClass(codeModel,field.getType(), packageType), field.getName());
+				JFieldVar fId=foo.field(JMod.PRIVATE, getDefinedClass(codeModel,field.getType(), packageType), field.getName());	
 			}else {
 
 				if(field.getType().getTypeParameters().length == 0) {
-					foo.field(JMod.PRIVATE, field.getType(), field.getName());
+					JFieldVar fId=foo.field(JMod.PRIVATE, field.getType(), field.getName());
+					if(packageType.toString() == PackageType.DO.toString() && (field.getName().contains("_id") || field.getName().contains("Id"))){
+						fId.annotate(javax.persistence.Id.class);	
+					}
 				} else {
-					foo.field(JMod.PRIVATE,getParameterizedClass(codeModel,field,packageType),field.getName());
+					JFieldVar fId=foo.field(JMod.PRIVATE,getParameterizedClass(codeModel,field,packageType),field.getName());
 				}
 			}
 			createGetter(foo,field,packageType);
@@ -139,7 +146,7 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 		JDefinedClass serviceClass = null;
 		try{
 			serviceClass = codeModel._class(getPackageName()+ "service."+ getServiceName()+  "Service");
-			addBean(getConfig(),serviceClass);
+			serviceBean(getConfig(),serviceClass);
 			addAutowiredField(serviceClass,GeneratorContext.getFacade(PackageType.BIZ));
 			Map<String, JDefinedClass> clazzes= getClasses(PackageType.DTO);
 			Iterator<String> definedClasses = clazzes.keySet().iterator();
@@ -174,6 +181,7 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 		JDefinedClass daoServiceClass = null;
 		try{
 			daoServiceClass = codeModel._class(getPackageName()+ "dao."+ getServiceName()+  "DAOService");
+			daoServiceClass.annotate(org.springframework.transaction.annotation.Transactional.class);
 			addBean(getConfig(),daoServiceClass);
 			Map<String, JDefinedClass> clazzes= getClasses(PackageType.DO);
 			Iterator<String> definedClasses = clazzes.keySet().iterator();
@@ -199,16 +207,43 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 	}
 
 	@Override
-	protected JDefinedClass createConfig(JDefinedClass definedClass) {
-		return configGenerator.generateConfig(definedClass);
+	protected JDefinedClass createConfig(JDefinedClass definedClass,String repo,App app)throws IOException{
+		JDefinedClass dclass=null;
+		try {
+			dclass=configGeneratorImpl.generateConfig(definedClass,repo,app);
+		} /*catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}*/ 
+		finally{
+			return dclass;
+		}
+		
 		//setConfig();
 	}
-
+   
+	private void serviceBean(JDefinedClass definedClass,JDefinedClass bean) {
+		String beanName = CodeUtil.camelCase(bean.name());
+		JMethod method = getConfig().method(JMod.PUBLIC, bean,beanName );
+		JAnnotationUse annotation = method.annotate(Bean.class);
+		annotation.param("name", "serviceBean");
+		method.body()._return(JExpr._new(bean));
+	}
+	
 	private void addBean(JDefinedClass definedClass,JDefinedClass bean) {
 		String beanName = CodeUtil.camelCase(bean.name());
 		JMethod method = getConfig().method(JMod.PUBLIC, bean,beanName );
 		JAnnotationUse annotation = method.annotate(Bean.class);
 		annotation.param("name", CodeUtil.camelCase(bean.name()));
 		method.body()._return(JExpr._new(bean));
+	}
+	
+	public ConfigGeneratorImpl getConfigGeneratorImpl() {
+		return configGeneratorImpl;
+	}
+
+	public void setConfigGeneratorImpl(ConfigGeneratorImpl configGeneratorImpl) {
+		this.configGeneratorImpl = configGeneratorImpl;
 	}
 }

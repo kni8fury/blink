@@ -1,5 +1,7 @@
 package com.blink.designer.model;
 
+
+
 public class EntityAttribute extends BaseBlinkModel{
 		
 	/**
@@ -11,6 +13,8 @@ public class EntityAttribute extends BaseBlinkModel{
 	private Type type;
 	
 	private boolean searchable;
+	
+	private boolean primarykey;
 
 	public Type getType() {
 		return type;
@@ -23,5 +27,11 @@ public class EntityAttribute extends BaseBlinkModel{
 	}
 	public void setSearchable(boolean searchable) {
 		this.searchable = searchable;
+	}
+	public boolean isPrimarykey() {
+		return primarykey;
+	}
+	public void setPrimarykey(boolean primarykey) {
+		this.primarykey = primarykey;
 	}
 }

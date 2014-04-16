@@ -8,9 +8,14 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.sun.codemodel.JAnnotationUse;
 import com.sun.codemodel.JClass;
+import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JExpression;
 import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMethod;
@@ -20,14 +25,17 @@ import com.sun.codemodel.JVar;
 public class ServiceMethodGeneratorImpl implements ServiceMethodGenerator{
 
 	JFieldVar mapperField; 
-
+    JFieldVar gsonField;
 	public ServiceMethodGeneratorImpl() {
 
 	}
 
 	public void generateAllServiceMethods(JDefinedClass serviceClass, JDefinedClass serviceDataClass) {
-		if( mapperField == null)
+		JCodeModel codemodel=serviceClass.owner();
+		if( mapperField == null){
 			mapperField = serviceClass.field(JMod.PRIVATE,org.dozer.Mapper.class, "mapper");
+			mapperField.annotate(Autowired.class);
+		}
 		getCreateServiceMethod(serviceClass,serviceDataClass);
 		getReadServiceMethod(serviceClass,serviceDataClass);
 		getUpdateServiceMethod(serviceClass,serviceDataClass);
@@ -37,7 +45,7 @@ public class ServiceMethodGeneratorImpl implements ServiceMethodGenerator{
 	public void getCreateServiceMethod(JDefinedClass serviceClass,JDefinedClass serviceDataClass) {
 		JMethod method = serviceClass.method(JMod.PUBLIC, serviceDataClass,"create" +serviceDataClass.name());
 		JVar input = method.param(serviceDataClass, CodeUtil.camelCase(serviceDataClass.name()));
-		input.annotate(javax.ws.rs.QueryParam.class).param("value", "");
+		//input.annotate(javax.ws.rs.QueryParam.class).param("value", "");
 
 		//annotateMethod(javax.ws.rs.POST.class,method,"/create"+serviceDataClass.name()+"/");
 		annotateMethod(javax.ws.rs.POST.class,method,serviceDataClass.name()+"/");
@@ -57,7 +65,7 @@ public class ServiceMethodGeneratorImpl implements ServiceMethodGenerator{
 		param.annotate(javax.ws.rs.PathParam.class).param("value", "id");
 
 		//annotateMethod(javax.ws.rs.GET.class,method,"/get" + serviceDataClass.name()+"/{id}");
-		annotateMethod(javax.ws.rs.GET.class,method, serviceDataClass.name()+"/");
+		annotateMethod(javax.ws.rs.GET.class,method, serviceDataClass.name()+"/{id}");
 		String bizClassName =  getBizClassFromDTO(serviceDataClass,PackageType.DTO);
 		JClass type = serviceClass.owner().ref(bizClassName);
 		
@@ -73,7 +81,7 @@ public class ServiceMethodGeneratorImpl implements ServiceMethodGenerator{
 	public void getUpdateServiceMethod(JDefinedClass serviceClass,JDefinedClass serviceDataClass) {
 		JMethod method = serviceClass.method(JMod.PUBLIC, serviceDataClass,"update" +serviceDataClass.name());
 		JVar input = method.param(serviceDataClass, CodeUtil.camelCase(serviceDataClass.name()));
-		input.annotate(javax.ws.rs.QueryParam.class).param("value", "");
+		//input.annotate(javax.ws.rs.QueryParam.class).param("value", "");
 
 		//annotateMethod(javax.ws.rs.PUT.class,method, "/update"+serviceDataClass.name()+"/");
 		annotateMethod(javax.ws.rs.PUT.class,method, serviceDataClass.name()+"/");

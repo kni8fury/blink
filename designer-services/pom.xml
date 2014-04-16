@@ -19,6 +19,7 @@
 			<artifactId>designer-modelgenerator</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>com.blink</groupId>
 			<artifactId>designer-scm</artifactId>
@@ -71,11 +72,13 @@
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>${jackson.version}</version>
 		</dependency>
+		<!--  
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-jaxrs</artifactId>
 			<version>${jackson.version}</version>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
@@ -85,11 +88,12 @@
 			<artifactId>designer-jpa</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-		<dependency>
+	 	<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-jaxrs</artifactId>
 			<version>1.9.0</version>
 		</dependency>
+		
 	</dependencies>
 	<build>
 		<pluginManagement>
