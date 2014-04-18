@@ -4,42 +4,66 @@
 <script type="text/javascript" src="js/ext-all.js"></script>
 <script type="text/javascript" src="js/app-all.js"></script>
 <jsp:directive.page import="java.io.*" />
-<jsp:directive.page import="javax.swing.JFileChooser"/>
-<script src="//www.java.com/js/deployJava.js"></script>
-	<script>
-	function loadApplet(code,codebase,width,height){
-	    var placeholder=document.getElementById('download');
-	    var a = document.createElement('object');
-	    a.setAttribute('type','application/x-java-applet');
-	    a.setAttribute('width',width);
-	    a.setAttribute('height',height);
+<jsp:directive.page import="javax.swing.*" />
+<jsp:directive.page import="java.awt.event.*" />
+<jsp:directive.page import="java.awt.*" />
+<jsp:directive.page import="java.util.*" />
+<jsp:directive.page import="javax.swing.SwingUtilities" />
+<jsp:directive.page import="javax.swing.filechooser.*" />
 
-	    var codeParam = document.createElement('param');
-	    codeParam.setAttribute('name','code');
-	    codeParam.setAttribute('value',code);
-	    a.appendChild(codeParam);
+<jsp:directive.page import="java.util.*" />
 
-	    var codebaseParam = document.createElement('param');
-	    codebaseParam.setAttribute('name','codebase');
-	    codebaseParam.setAttribute('value',codebase);
-	    a.appendChild(codebaseParam);
 
-	    placeholder.appendChild(a);
-	}
-     </script>
+
+<script>
+
+
+function loadApplet(code,codebase,width,height){
+	var placeholder=document.getElementById('download');
+	var a = document.createElement('object'); 
+	a.setAttribute('type','application/x-java-applet'); 
+	a.setAttribute('width',width); 
+	a.setAttribute('height',height); 
+	var codeParam = document.createElement('param'); 
+	codeParam.setAttribute('name','code');
+	codeParam.setAttribute('value',code); 
+	a.appendChild(codeParam); 
+	var codebaseParam = document.createElement('param'); 
+	codebaseParam.setAttribute('name','codebase');
+	codebaseParam.setAttribute('value',codebase);
+	a.appendChild(codebaseParam);
+	placeholder.appendChild(a); }
+	
+/*function openApplet()
+	{alert("hi");
+	var app = document.MyApplet;
+    var attributes ={code:'MyApplet',width:500, height:300};
+	}*/
+</script>
 
 <body>
-   <!--   <applet code="BrowsePage.class" codebase="/../main/java/BrowsePage.class" height="300" width="550" /> -->
-    <!--  <object name="BrowsePage" type="application/x-java-applet" height="300" width="550" >
-    <param name="code" value="BrowsePage.class"/>
-    </object> -->
+    <applet code="MyApplet.class" codebase="/../main/java/MyApplet.class" height="300" width="550" />
+    <!--  <object name="BrowsePage" type="application/x-java-applet" height="300" width="550" > -->
+    <param name="code" value="BrowsePage.class"/>
+    </object>
 	<script>
+ var baseURL = 'http://localhost:8080/desginer-web/services/crud/';
+	</script>
+	<script type="text/javascript" src="js/app-model.js"></script>
+	<script type="text/javascript" src="js/app-store.js"></script>
+	
+	</body>
+	
+
+	<script>
+	
 	   var baseURL = 'http://localhost:8080/desginer-web/services/crud/';
+	   var baseGIT='https://localhost:18443/gitblit/repositories/';
 	</script>
 	<script type="text/javascript" src="js/app-model.js"></script>
 	<script type="text/javascript" src="js/app-store.js"></script>
 	<script>
-	 
+	   
 		function createGrid(title, store, columns) {
 			  return	Ext.create('Ext.grid.Panel', {
 			        title: title,
@@ -158,7 +182,6 @@
 			var formPanel = this.up('form');
 			var form = formPanel.getForm();
             var formValues = form.getValues();
-     
 			formValues.parentPackage  = {'id': form.findField('parentPackage.id').getValue()  };
 			var gridData = new Array();
 			for (var j=0; j<=Ext.getCmp('Attributes').getStore().getCount()-1; j++) {
@@ -180,7 +203,6 @@
 			   
 			                }
 			formValues.entityAttributes = gridData;
-		       alert("This is form Values in attribute function " +formValues.entityAttributes.toSource());
 		    return formValues; 
 
 		}
@@ -274,14 +296,16 @@
 		});
 		
 		var win ;
-		var minAppWin;
+		var minAppWin; 
 		var miniApp;
 		function createMiniApp( response ) {
-			miniApp = Ext.JSON.decode(response.responseText);
-			alert(miniApp.toSource());
+			 miniApp = Ext.JSON.decode(response.responseText);
+			
 			if( response.status == "200")
 			   win.hide();
+			
 			var items = new Array();
+			
 			if ( miniApp.db ) {
 				items.push({
 		            xtype: 'fieldset',
@@ -357,8 +381,8 @@
 			                anchor: '100%'
 			            },
 			            layout: 'anchor',
-			            items: [{name:'clientId',fieldLabel:'ClientId'},
-			                    {name:'clientSecret',fieldLabel:'ClientSecret'}
+			            items: [{name:'facebook.clientId',fieldLabel:'ClientId'},
+			                    {name:'facebook.clientSecret',fieldLabel:'ClientSecret'}
 			                   ] 
 			            });
 				};
@@ -395,164 +419,164 @@
                         formBind: true, 
                         disabled: true,
                         handler: function() {
-                        	var formPanel = this.up('form');
-                			var form = formPanel.getForm();
-                            var finaldata=form.getValues();
-                        	finaldata.app={'id':miniApp.id};
-                        	var a=form.findField('jdbcURL').getValue();
-                        	var b=form.findField('jdbcDriver').getValue();
-                        	var c=form.findField('username').getValue();
-                        	var d=form.findField('password').getValue();
-                        	finaldata.dbConfig={'id':0 , 'jdbcURL':a, 'jdbcDriver':b ,'username':c , 'password': d, 'name':miniApp.db};
-                        	a=form.findField('inheritence').getValue();
-                        	b=form.findField('idgeneration').getValue();
-                        	c=form.findField('association').getValue();
-                        	finaldata.persistenceAPIConfig={'id':0 ,'inheritence':a,'idgeneration':b,'association':c,'name':miniApp.persistenceAPI };
-                        	finaldata.securityAPIConfig={'id':0 , 'name':miniApp.securityAPI};
-                        	if(miniApp.securityStore == "LDAP"){
-                        		a=form.findField('userProvider').getValue();
-                        		b=form.findField('userFilter').getValue();
-                        		c=form.findField('authzIdentity').getValue();
-                        		finaldata.securityStoreConfig={'lDAPConfig':{'id':0 ,'userProvider':a , 'userFilter':b , 'authzIdentity':c , 'name':miniApp.securityStore } ,'id':0 , 'name':miniApp.securityStore};
-                        	}
-                        	else  if (miniApp.securityStore == "FACEBOOK" ) {
-                        		a=form.findField('clientId').getValue();
-                        		b=form.findField('clientSecret').getValue();
-                        		finaldata.securityStoreConfig={'facebookConfig':{'id':0 , 'clientId':a , 'clientSecret':b , 'name':miniApp.securityStore } ,'id':0 , 'name':miniApp.securityStore};
-                        	}
-                        	finaldata.id=0;
-                        	finaldata.name=miniApp.name;
-                        	finaldata.desc=miniApp.description;
-                        	Ext.Ajax.request({
-                				url : baseURL +'appconfig/' ,
-                				method : 'POST',
-                				timeout : 600000,
-                				headers : {
-                					'Content-Type' : 'application/json'
-                				},
-                				jsonData : finaldata,
-                				success:function (response) {
-                	        		   Ext.Msg.alert('Data Saving Success', response.status);
-                	        		   Ext.Ajax.request({
-                           				url : baseURL +'autogen/app/small/'+miniApp.id,
-                           				method : 'POST',
-                           				headers : {
-                           					'Content-Type' : 'application/json'
-                           				},
-                           				timeout : 600000,
-                           				success:function (response) {
-                           	        		   Ext.Msg.alert('App Request Success', response.status);
-                           	        		   Ext.getCmp('download').show();
-                           				},
-                           				failure : function(form, action) {
-                           					Ext.Msg.alert('Failed', 'Server Error');
-                           				}
-                           			});
-                				},
-                				failure : function(form, action) {
-                					Ext.Msg.alert('Failed', 'Server Error');
-                				}
-                			});
-                        	
+                            var form = this.up('form').getForm();
+							var formData=form.getValues();
+							alert(formData.toSource());
+							formData.app={'id':miniApp.id};
+							var a=form.findField('jdbcURL').getValue();
+							var b=form.findField('jdbcDriver').getValue();
+							var c=form.findField('username').getValue();
+							var d=form.findField('password').getValue();
+							formData.dbConfig={'id':0, 'jdbcURL':a, 'jdbcDriver':b, 'username':c, 'password':d, 'name':miniApp.db};
+							var e=form.findField('inheritence').getValue();
+							var f=form.findField('association').getValue();
+							var g=form.findField('idgeneration').getValue();
+							formData.persistenceAPIConfig={'id':0, 'inheritence':e, 'association':f, 'idgeneration':g, 'name':miniApp.persistenceAPI};
+							formData.securityAPIConfig={'id':0, name:miniApp.securityAPI};
+							if(miniApp.securityStore=="LDAP"){
+								var h=form.findField('userProvider').getValue();
+								var i=form.findField('userFilter').getValue();
+								var j=form.findField('authzIdentity').getValue();
+								formData.securityStoreConfig={'lDAPConfig':{'id':0, 'userProvider':h, 'userFilter':i, 'authzIdentity':j, name:miniApp.securityStore}, 'id':0, name:miniApp.securityStore};
+							}
+							
+							else if(miniApp.securityStore=="Facebook"){
+								var h=formData.findField('clientId').getValue();
+								var i=formData.findField('clientSecret').getValue();
+								
+								formData.securityStoreConfig={'facebookConfig':{'id':0, 'clientId':h, 'clientSecret':i, name:miniApp.securityStore}, 'id':0, name:miniApp.securityStore};
+								
+								
+								
+							}
+							formData.name=miniApp.name;
+							formData.description=miniApp.description;
+							formData.id=0;
+							Ext.Ajax.request({
+		        				url : baseURL + 'AppConfig/',
+		        				method : 'POST',
+		        				headers : {
+		        					'Content-Type' : 'application/json'
+		        				},
+		        				jsonData : formData,
+		        				success :function() {alert("Yipee!! Success!");
+		        				
+		        					Ext.Ajax.request({
+		        						url: baseURL+'autogen/app/small/'+miniApp.id,
+		        						method: 'POST',
+		        						headers : {
+				        					'Content-Type' : 'application/json'
+				        				},
+				        				timeout:600000,
+				        				success:function() {
+				        				alert("App made success");
+				        				
+				        				Ext.getCmp('download').show();
+				        			
+				        				},
+				        				failure : function(){ alert("App not made");
+				        				 window.location.reload();
+				        				 }
+				        				});
+				        				},
+		        					
+		        				failure : function(){ alert("Failed");
+		        				 window.location.reload();}
+		        				
+		        				
+		        			});
+							
+							
+                           
                         }
-                        }
-                  ]
+                    
+                    
+                    
+                    }]
+                    
                 }]
 			});
+			
 			minAppWin.show(viewport,  function () {});
 			
 		}
 		
-		
-		function newPaxEntity (item, e) {
+	
 			win =  Ext.create('widget.window', {
-	                title: 'Entity Selection',
-	                closable: true,
-	                closeAction: 'hide',
-	                //animateTarget: this,
-	                width: 650,
-	                height: 550,
-	                layout: 'border',
-	                bodyStyle: 'padding: 5px;',
-	                items: [{
-	                	xtype: 'form',
-	                	title:'Entity',
-	                	width: 600,
-	                	height: 400,
-	                	split: true,
-	                	floatable: false,
-	                	layout: 'form',
-	                	defaultType: 'textfield',
-	                	items: [
-	                	        {
-	                	        	name: 'name',
-	                	        	fieldLabel: 'Entity Name'
-	                	        },
-	                	        Ext.create('Ext.form.ComboBox', {
-		                    		name :'db',
-		                    	    fieldLabel: 'Package Type',
-		                    	    store: packageStore,
-		                    	    queryMode: 'local',
-		                    	    displayField: 'name',
-		                    	    valueField: 'abbr',
+                title: 'Download',
+                closable: true,
+                closeAction: 'hide',
+                id:'download',
+                resizable: true,
+                draggable: true,
+                //animateTarget: this,
+                width: 100,
+                height: 100,
+                layout: 'border',
+                bodyStyle: 'padding: 5px;',
+             
+                	buttons: [{
+                        text: 'Download',
+                        handler: function() {
+                        	var test=window.open();
+                        	test.location='http://localhost:8080/desginer-web/download?fileName='+miniApp.name;
 
-		                    	})
-	                	        ],
-	                	buttons: [{
-	                		text: 'Submit'
-	                		
-	                	}]
-	            
-	                      
-	                       }]
-	                });
-	                	
-	               
-	                
-	                
-			win.show(this,  function () {});
-		}
+        					/*Ext.Ajax.request({
+        						url: 'http://localhost:8080/desginer-web/download?fileName='+miniApp.name,
+        						method: 'GET',
+        						headers : {
+		        					'Content-Type' : 'application/json'
+		        				},
+		        				success:function() {
+		        				alert("File Download Successful");
+		        				
+		        				Ext.getCmp('download').show();
+		        			
+		        				},
+		        				failure : function(){ alert("File downlaod failed");
+		        				 window.location.reload();
+		        				 }
+		        				});*/
+                        }
+                }]
+            	
+			});
+			
+		
+
+
 
 		
-			win =  Ext.create('widget.window', {
-	                title: 'Download',
-	                closable: true,
-	                id:'download',
-	                closeAction: 'hide',
-	                resizable: true,
-	                draggable: true,
-	                //animateTarget: this,
-	                width: 650,
-	                height: 350,
-	                layout: 'border',
-	                bodyStyle: 'padding: 5px;',
-	                buttons : [ {
-						text : 'Download',
-							handler : function() {
-								
-						    var test = window.open();
-						    test.location='http://localhost:8080/desginer-web/download?fileName='+miniApp.name;
+			
+			
+			/*function saveFileToDisk(url, dest, callback) {
+			    var xhr = new XMLHttpRequest();
 
-								/*Ext.Ajax.request({
-									url :'http://localhost:8080/desginer-web/download?fileName='+miniApp.name,
-								    method : 'GET',
-									headers : {
-										'Content-Type' : 'application/json'
-									},
-									params: {
-								           fileName: miniApp.name + ".war"
-								        },
-									success : function(){
-										alert("file successfully downloaded");
-									},
-									failure : function(form, action) {
-										Ext.Msg.alert('Failed', 'Server Error');
-									}
-								});*/
-							}
-						}]
-			}
-			);
+			    xhr.onload = function() {
+			        var typedData = new Uint8Array(xhr.response),
+			            ln = typedData.length,
+			            data = new Array(ln),
+			            result;
+
+			        for (var i = 0; i < ln; i++) {
+			            data[i] = typedData[i];
+			        }
+
+			        result = Ion.io.writeFile(dest, data);
+			        callback(result.success);
+			    };
+
+			    xhr.onerror = function() {
+			        callback(false);
+			    };
+
+			    xhr.open('GET', url);
+			    xhr.responseType = 'arraybuffer';
+			    xhr.send(null);
+			}*/
+		
+
+		
 		
 			
 		function newApp (item, e) {
@@ -587,10 +611,10 @@
 	                            	fieldLabel: 'Description'
 	                            },
 	                            {
-	                            	name: 'basePackage',
-	                            	fieldLabel: 'Base Package'
+	                            	name:'basePackage',
+	                            	fieldLabel:'Base Package'
+	                            	
 	                            },
-	                            
 	                    	Ext.create('Ext.form.ComboBox', {
 	                    		name :'db',
 	                    	    fieldLabel: 'DB Type',
@@ -853,19 +877,7 @@
                             	
                                       
                                
-                           })},
-                           
-                            	{text : 'Is Primary Key',dataIndex : 'primarykey',editor:new Ext.form.field.ComboBox({
-                                    typeAhead:true,
-                                    triggerAction:'all',
-                                    store:optionStore,
-                                    editable:true,
-                                    selectOnTab:true,
-                                    valueField: 'name',
-                                    displayField: 'abbr'
-                                    
-                                    
-                                 	})},
+                           })}
                             	
                             	];
 			
@@ -884,7 +896,7 @@
 					var attributeStore = Ext.create('Ext.data.JsonStore', {
 				        model: 'EntityAttribute',
 				        data: data.entityAttributes
-				       			        
+				        
 				    });
 				
 					
@@ -940,8 +952,8 @@
 		}
 		function shandler()
 		{
-			Ext.Msg.alert("Success");
-			//window.location.reload();
+			//Ext.Msg.alert(Success);
+			window.location.reload();
 		}
 
 		function submitCreateEntityFunction() {
