@@ -194,7 +194,7 @@ function loadApplet(code,codebase,width,height){
 				       var typeid=Ext.getCmp('Attributes').store.getAt(j).data.primitiveType;
 				       Ext.getCmp('Attributes').store.getAt(j).data.primitiveType={'id':typeid};
 				     } 
-				   Ext.getCmp('Attributes').store.getAt(j).compositeType={};
+				   Ext.getCmp('Attributes').store.getAt(j).data.compositeType=null;
 			   }else if(Ext.getCmp('Attributes').store.getAt(j).data.selectType == "Composite"){
 				   if(Ext.getCmp('Attributes').store.getAt(j).data.compositeType >= 0)
 					 {

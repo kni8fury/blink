@@ -1,6 +1,7 @@
 package com.blink.model.generator;
 
 import java.io.File;
+import org.apache.commons.lang.StringUtils;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -133,7 +134,7 @@ public class ModelGenerator {
 		generateModel(codeModel,entity, parentPackage);
 	}
 
-	protected void generateModel(JCodeModel codeModel,Entity entity,JPackage parentPackage) throws ClassNotFoundException {
+	protected void generateModel(JCodeModel codeModel,Entity entity,JPackage parentPackage) throws ClassNotFoundException,NullPointerException {
 
 		JDefinedClass entityClass = null;
 		try {
@@ -146,22 +147,33 @@ public class ModelGenerator {
 	}
 
 
-	protected void generateAttributes(JCodeModel codeModel, JDefinedClass entityClass, Entity entity) throws ClassNotFoundException {
+	protected void generateAttributes(JCodeModel codeModel, JDefinedClass entityClass, Entity entity) throws ClassNotFoundException,NullPointerException {
 		if(  entity.getEntityAttributes() == null) {
 			return; 
 		}
 
 		for(EntityAttribute entityAttribute : entity.getEntityAttributes()) {
-			entityClass.field(JMod.PRIVATE, getType(codeModel,entityAttribute.getPrimitiveType().getName() ), entityAttribute.getName());
-			String fieldName =entityAttribute .getName();
-			String typeName = entityAttribute.getPrimitiveType().getName();
+			String typeName=null;
+			String fieldName=null;
+			JType type=null;
 			
+			if(entityAttribute.getPrimitiveType() == null){
+			    type=getCompositeType(codeModel,entityAttribute.getCompositeType().getName());
+		    	fieldName =entityAttribute .getName();
+			    typeName = entityAttribute.getCompositeType().getName();
+			}
+			else if(entityAttribute.getCompositeType() == null){
+				type=getPrimitiveType(codeModel,entityAttribute.getPrimitiveType().getName());
+				fieldName =entityAttribute .getName();
+				typeName = entityAttribute.getPrimitiveType().getName();
+				}
+			entityClass.field(JMod.PRIVATE,type, entityAttribute.getName());
             String getterName = ("java.lang.Boolean".equals(typeName) ? "is" : "get")+ String.valueOf(fieldName.charAt(0)).toUpperCase() + fieldName.substring(1);
-			JMethod getterMethod = entityClass.method(JMod.PUBLIC, getType(codeModel,entityAttribute.getPrimitiveType().getName() ),getterName );
+			JMethod getterMethod = entityClass.method(JMod.PUBLIC,type,getterName );
 			getterMethod.body()._return(JExpr.ref(fieldName));
 			String setterName = ("java.lang.Boolean".equals(typeName) ? "is" : "set")+ String.valueOf(fieldName.charAt(0)).toUpperCase() + fieldName.substring(1);
 			JMethod setterMethod = entityClass.method(JMod.PUBLIC,void.class,setterName );
-			setterMethod.param(getType(codeModel,entityAttribute.getPrimitiveType().getName() ), fieldName);
+			setterMethod.param(type, fieldName);
 			setterMethod.body().assign(JExpr.refthis(fieldName), JExpr.ref(fieldName));
 			}
 		    /*JFieldVar f=entityClass.field(JMod.PRIVATE, long.class,"id");
@@ -173,9 +185,13 @@ public class ModelGenerator {
 		}
 	
 
-	private JType getType(JCodeModel codeModel, String name ) throws ClassNotFoundException {
+	private JType getPrimitiveType(JCodeModel codeModel, String name ) throws ClassNotFoundException {
 		Type type = (Type) entityManager.createQuery("from com.blink.designer.model.Type where name = '" + name+"'").getSingleResult() ;
 		return codeModel.parseType(type.getClassName());
+	}
+	
+	private JType getCompositeType(JCodeModel codeModel, String name)throws ClassNotFoundException {
+		return codeModel.parseType(name);
 	}
 
 	protected JPackage getPackage(JCodeModel codeModel , String packageName) {
