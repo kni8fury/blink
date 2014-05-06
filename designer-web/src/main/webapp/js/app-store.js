@@ -80,6 +80,15 @@ var serviceAPITypes = Ext.create('Ext.data.Store', {
         {"abbr":"XMLHTTP", "name":"XML/HTTP"},
     ]
 });
+
+var selectStore = Ext.create('Ext.data.Store', {
+    fields: ['abbr', 'name'],
+    data : [
+        {"abbr":"Primitive", "name":"Primitive"},
+        {"abbr":"Composite", "name":"Composite"}
+    ]
+});
+
 	
 
 
@@ -127,10 +136,21 @@ Ext.create('Ext.form.ComboBox', {
 		            model: 'Type'
 		        }
 		    },
-		    autoLoad: true
+		    autoLoad: true,
 		});  
-		
-
+		var entityStore = Ext.create('Ext.data.Store', {
+		    model: 'Entity',
+		    proxy: {
+		        type: 'ajax',
+		        url : baseURL +'entity/',
+		        reader: {
+		            type: 'json',
+		            model: 'Entity'
+		        }
+		    },
+		    autoLoad: true,
+		}); 
+        
 		var store = Ext.create('Ext.data.TreeStore', {
 			model : 'Package',
 			root : {

@@ -183,14 +183,34 @@ function loadApplet(code,codebase,width,height){
 			var form = formPanel.getForm();
             var formValues = form.getValues();
 			formValues.parentPackage  = {'id': form.findField('parentPackage.id').getValue()  };
-			var gridData = new Array();
+		    var gridData = new Array();
+		    alert(Ext.getCmp('Attributes').store.getAt(0).data.toSource());
 			for (var j=0; j<=Ext.getCmp('Attributes').getStore().getCount()-1; j++) {
 			   Ext.getCmp('Attributes').getSelectionModel().select(j,true);
-			   if(Ext.getCmp('Attributes').store.getAt(j).data.type < 100)
-				 {
-			       var typeid=Ext.getCmp('Attributes').store.getAt(j).data.type;
-			       Ext.getCmp('Attributes').store.getAt(j).data.type={'id':typeid};
-			     }
+			   
+			   if(Ext.getCmp('Attributes').store.getAt(j).data.selectType == "Primitive"){
+				   if(Ext.getCmp('Attributes').store.getAt(j).data.primitiveType >= 0)
+					 {
+				       var typeid=Ext.getCmp('Attributes').store.getAt(j).data.primitiveType;
+				       Ext.getCmp('Attributes').store.getAt(j).data.primitiveType={'id':typeid};
+				     } 
+				   Ext.getCmp('Attributes').store.getAt(j).compositeType={};
+			   }else if(Ext.getCmp('Attributes').store.getAt(j).data.selectType == "Composite"){
+				   if(Ext.getCmp('Attributes').store.getAt(j).data.compositeType >= 0)
+					 {
+				       var typeid=Ext.getCmp('Attributes').store.getAt(j).data.compositeType;
+				       Ext.getCmp('Attributes').store.getAt(j).data.compositeType={'id':typeid};
+				     } 
+				 Ext.getCmp('Attributes').store.getAt(j).data.primitiveType=null;
+			   }else{
+				   if(Ext.getCmp('Attributes').store.getAt(j).data.primitiveType == "")
+					   Ext.getCmp('Attributes').store.getAt(j).data.primitiveType=null;
+				   if(Ext.getCmp('Attributes').store.getAt(j).data.compositeType == "")
+					   Ext.getCmp('Attributes').store.getAt(j).data.compositeType=null;
+				   
+			   }
+				
+			   
 			    if(Ext.getCmp('Attributes').getSelectionModel().isSelected(j)){
 			    	if(Ext.getCmp('Attributes').store.getAt(j).data.id > 0)
 		               gridData.push(Ext.getCmp('Attributes').store.getAt(j).data);
@@ -844,7 +864,10 @@ function loadApplet(code,codebase,width,height){
 
 			addToViewPort(packageForm);
 		}
-
+        
+		var isDisabled1=false;
+		var isDisabled2=false;
+		
 		function modifyEntityForm(id) {
 
 			var entityForm = createForm('Modify Entity', 'entity/', getEntityFormItems(),submitCreateAttributeFunction);
@@ -863,21 +886,79 @@ function loadApplet(code,codebase,width,height){
                                
                                
                             	})},
+                            {text : 'Select DataType',dataIndex : 'selectType',editor: new Ext.form.field.ComboBox({
+                                    typeAhead:true,
+                                    triggerAction:'all',
+                                    store:selectStore,
+                                    editable:true,
+                                    selectOnTab:true,
+                                    displayField: 'name', 
+                                    valueField: 'name',
+                                    listConfig: {
+                                    	  listeners: {
+                                    	      itemclick: function(list, record, combo) {
+                                    	           var combo1 = Ext.getCmp('Comp'); 
+                                    	           var combo2 = Ext.getCmp('Prim');
+                                    	           if(record.get('name')=="Primitive"){
+                                                     combo1.disable();
+                                                     combo2.enable();
+                                    	            }
+                                    	            else{
+                                    	             combo2.disable();
+                                    	             combo1.enable();
+                                    	            }
+                                    	                                         
+                                    	      }
+                                    	   }} 
+
+                                    
+                                })}, 
                             	
-			               {text : 'Type',dataIndex : 'type',editor: new Ext.form.field.ComboBox({
+                            	
+                            	
+			               {text : 'Primitive Type',dataIndex : 'primitiveType',editor: new Ext.form.field.ComboBox({
                                typeAhead:true,
                                triggerAction:'all',
                                editable:true,
                                selectOnTab:true,
                                store:typeStore,
-                               name:'id',
+                               id:'Prim',
                                displayField: 'name', 
                                valueField: 'id',
-                               queryMode : 'local'
+                               queryMode : 'local',
+                               lastQuery : ''
+                               
                             	
                                       
                                
-                           })}
+                           })}, 
+                           {text : 'User-Defined Type',dataIndex : 'compositeType',editor: new Ext.form.field.ComboBox({
+                               typeAhead:true,
+                               triggerAction:'all',
+                               editable:true,
+                               selectOnTab:true,
+                               store:entityStore,
+                               id:'Comp',
+                               displayField: 'name', 
+                               valueField: 'id',
+                               queryMode : 'local',
+                               lastQuery : ''
+                               
+                            	
+                                      
+                               
+                           })}, 
+                           {text : 'Is Primary Key',dataIndex : 'primarykey',editor:new Ext.form.field.ComboBox({
+                               typeAhead:true,
+                               triggerAction:'all',
+                               store:optionStore,
+                               editable:true,
+                               selectOnTab:true,
+                               valueField: 'name',
+                               displayField: 'abbr'
+                               
+                               
+                            	})}
                             	
                             	];
 			
@@ -1025,9 +1106,7 @@ function loadApplet(code,codebase,width,height){
 			createPackageForm();
 			
 		}
-		
-		
-		
+				
 	</script>
 </body>
 </html>

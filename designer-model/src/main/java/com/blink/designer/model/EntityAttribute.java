@@ -10,17 +10,19 @@ public class EntityAttribute extends BaseBlinkModel{
 	private static final long serialVersionUID = -5098212742045206213L;
 	
 	
-	private Type type;
+	private Type primitiveType;
 	
 	private boolean searchable;
 	
 	private boolean primarykey;
+	
+	private Entity compositeType;
 
-	public Type getType() {
-		return type;
+	public Type getPrimitiveType() {
+		return primitiveType;
 	}
-	public void setType(Type type) {
-		this.type = type;
+	public void setPrimitiveType(Type primitiveType) {
+		this.primitiveType = primitiveType;
 	}
 	public boolean isSearchable() {
 		return searchable;
@@ -33,5 +35,11 @@ public class EntityAttribute extends BaseBlinkModel{
 	}
 	public void setPrimarykey(boolean primarykey) {
 		this.primarykey = primarykey;
+	}
+	public Entity getCompositeType(){
+		return compositeType;
+	}
+	public void setCompositeType(Entity compositeType){
+		this.compositeType=compositeType;
 	}
 }

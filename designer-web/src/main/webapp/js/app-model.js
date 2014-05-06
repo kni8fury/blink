@@ -22,10 +22,13 @@
 		
 		Ext.define('EntityAttribute', {
 			 extend: 'Ext.data.Model',
-		     fields : ['id','name','description','searchable','type']
+		     fields : ['id','name','description','searchable','primitiveType','primarykey','compositeType','selectType']
 		} );
 		
-		
+		Ext.define('Entity' , {
+			 extend: 'Ext.data.Model',
+			 fields : ['id','name','description','parentPackage_id']
+		});
 		
 		Ext.define('Entity2',{
 		

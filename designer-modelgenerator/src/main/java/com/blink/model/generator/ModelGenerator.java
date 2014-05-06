@@ -152,16 +152,16 @@ public class ModelGenerator {
 		}
 
 		for(EntityAttribute entityAttribute : entity.getEntityAttributes()) {
-			entityClass.field(JMod.PRIVATE, getType(codeModel,entityAttribute.getType().getName() ), entityAttribute.getName());
+			entityClass.field(JMod.PRIVATE, getType(codeModel,entityAttribute.getPrimitiveType().getName() ), entityAttribute.getName());
 			String fieldName =entityAttribute .getName();
-			String typeName = entityAttribute.getType().getName();
+			String typeName = entityAttribute.getPrimitiveType().getName();
 			
             String getterName = ("java.lang.Boolean".equals(typeName) ? "is" : "get")+ String.valueOf(fieldName.charAt(0)).toUpperCase() + fieldName.substring(1);
-			JMethod getterMethod = entityClass.method(JMod.PUBLIC, getType(codeModel,entityAttribute.getType().getName() ),getterName );
+			JMethod getterMethod = entityClass.method(JMod.PUBLIC, getType(codeModel,entityAttribute.getPrimitiveType().getName() ),getterName );
 			getterMethod.body()._return(JExpr.ref(fieldName));
 			String setterName = ("java.lang.Boolean".equals(typeName) ? "is" : "set")+ String.valueOf(fieldName.charAt(0)).toUpperCase() + fieldName.substring(1);
 			JMethod setterMethod = entityClass.method(JMod.PUBLIC,void.class,setterName );
-			setterMethod.param(getType(codeModel,entityAttribute.getType().getName() ), fieldName);
+			setterMethod.param(getType(codeModel,entityAttribute.getPrimitiveType().getName() ), fieldName);
 			setterMethod.body().assign(JExpr.refthis(fieldName), JExpr.ref(fieldName));
 			}
 		    /*JFieldVar f=entityClass.field(JMod.PRIVATE, long.class,"id");
