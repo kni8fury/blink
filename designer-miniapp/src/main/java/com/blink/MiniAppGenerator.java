@@ -130,6 +130,8 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 			else if (((JClass)codeModel._ref(java.util.Collection.class)).isAssignableFrom((JClass)field.type())) {
 				JAnnotationUse fetch=field.annotate(javax.persistence.OneToMany.class);
 				fetch.param("fetch",javax.persistence.FetchType.EAGER);
+				JAnnotationUse cascade=field.annotate(org.hibernate.annotations.Cascade.class);
+				cascade.param("value",org.hibernate.annotations.CascadeType.ALL);
 			}
 		}
 	}
