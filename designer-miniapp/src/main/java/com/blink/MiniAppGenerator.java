@@ -128,7 +128,8 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 			}else if(field.type().binaryName().startsWith(getPackageName()) )
 				field.annotate(javax.persistence.OneToOne.class);
 			else if (((JClass)codeModel._ref(java.util.Collection.class)).isAssignableFrom((JClass)field.type())) {
-				field.annotate(javax.persistence.OneToMany.class);
+				JAnnotationUse fetch=field.annotate(javax.persistence.OneToMany.class);
+				fetch.param("fetch",javax.persistence.FetchType.EAGER);
 			}
 		}
 	}

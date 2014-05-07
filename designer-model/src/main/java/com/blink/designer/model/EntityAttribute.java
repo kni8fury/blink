@@ -17,6 +17,8 @@ public class EntityAttribute extends BaseBlinkModel{
 	private boolean primarykey;
 	
 	private Entity compositeType;
+	
+	private String multiType;
 
 	public Type getPrimitiveType() {
 		return primitiveType;
@@ -41,5 +43,11 @@ public class EntityAttribute extends BaseBlinkModel{
 	}
 	public void setCompositeType(Entity compositeType){
 		this.compositeType=compositeType;
+	}
+	public void setMultiType(String multiType){
+		this.multiType=multiType;
+	}
+	public String getMultiType(){
+		return multiType;
 	}
 }

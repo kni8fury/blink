@@ -1,7 +1,9 @@
 package com.blink.model.generator;
 
 import java.io.File;
+
 import org.apache.commons.lang.StringUtils;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -158,7 +160,10 @@ public class ModelGenerator {
 			JType type=null;
 			
 			if(entityAttribute.getPrimitiveType() == null){
-			    type=getCompositeType(codeModel,entityAttribute.getCompositeType().getName());
+				if(entityAttribute.getMultiType().equals("null"))
+			      type=getCompositeType(codeModel,entityAttribute.getCompositeType().getName());
+				else
+				  type=getCompositeMultiType(codeModel,entityAttribute.getCompositeType().getName(),entityAttribute.getMultiType());
 		    	fieldName =entityAttribute .getName();
 			    typeName = entityAttribute.getCompositeType().getName();
 			}
@@ -184,7 +189,10 @@ public class ModelGenerator {
 			setmethod.body().assign(JExpr.refthis("id"), JExpr.ref("id"));*/
 		}
 	
-
+    private JType getCompositeMultiType(JCodeModel codeModel, String name,String multiType) throws ClassNotFoundException{
+    	return codeModel.parseType("java.util."+multiType+"<"+name+">");
+    }
+	
 	private JType getPrimitiveType(JCodeModel codeModel, String name ) throws ClassNotFoundException {
 		Type type = (Type) entityManager.createQuery("from com.blink.designer.model.Type where name = '" + name+"'").getSingleResult() ;
 		return codeModel.parseType(type.getClassName());

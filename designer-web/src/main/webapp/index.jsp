@@ -947,7 +947,22 @@ function loadApplet(code,codebase,width,height){
                             	
                                       
                                
-                           })}, 
+                           })},
+                           {text : 'Multi-Type',dataIndex : 'multiType',editor: new Ext.form.field.ComboBox({
+                               typeAhead:true,
+                               triggerAction:'all',
+                               editable:true,
+                               selectOnTab:true,
+                               store:collectionStore,
+                               displayField: 'name', 
+                               valueField: 'name',
+                               queryMode : 'local',
+                               lastQuery : ''
+                               
+                            	
+                                      
+                               
+                           })},
                            {text : 'Is Primary Key',dataIndex : 'primarykey',editor:new Ext.form.field.ComboBox({
                                typeAhead:true,
                                triggerAction:'all',

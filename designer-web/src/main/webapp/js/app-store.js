@@ -138,6 +138,14 @@ Ext.create('Ext.form.ComboBox', {
 		    },
 		    autoLoad: true,
 		});  
+		var collectionStore = Ext.create('Ext.data.Store',{
+			fields: ['abbr', 'name'],
+            data : [
+                    {"abbr":"List", "name":"List"},
+                    {"abbr":"Set", "name":"Set"},
+                    {"abbr":"null","name":"null"}
+                    ]
+		});
 		var entityStore = Ext.create('Ext.data.Store', {
 		    model: 'Entity',
 		    proxy: {
