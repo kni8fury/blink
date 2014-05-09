@@ -32,11 +32,14 @@ import com.sun.codemodel.JPackage;
 
 public class MiniAppGenerator extends AbstractAppGenerator {
 
-	private ServiceMethodGenerator serviceGenerator;
-	private BizMethodGenerator bizMethodGenerator;
-	private DAOMethodGenerator daoMethodGenerator;	
 	@Autowired
-	private ConfigGeneratorImpl configGeneratorImpl; 
+	private ServiceMethodGenerator serviceGenerator;
+	@Autowired
+	private BizMethodGenerator bizMethodGenerator;	
+	@Autowired
+	private DAOMethodGeneratorImpl daoMethodGenerator; 
+	@Autowired
+	private ConfigGeneratorImpl configGeneratorImpl;
 	@PersistenceContext
 	EntityManager entityManager;
 	
@@ -50,9 +53,9 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 	}
 
 	private void init() {
-		serviceGenerator = new ServiceMethodGeneratorImpl();
-		bizMethodGenerator = new BizMethodGeneratorImpl();
-		daoMethodGenerator = new DAOMethodGeneratorImpl();
+		//serviceGenerator = new ServiceMethodGeneratorImpl();
+		//bizMethodGenerator = new BizMethodGeneratorImpl();
+		//daoMethodGenerator = new DAOMethodGeneratorImpl();
 		//configGenerator = new ConfigGeneratorImpl();	
 	}
 	
@@ -100,9 +103,10 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 		JAnnotationUse annotationUse = definedClass.annotate(javax.persistence.Table.class) ;
 		annotationUse.param("name", clazz.getSimpleName());
 		int count=0;
+		String className=null;
 		List<Entity> entities = entityManager.createQuery("from com.blink.designer.model.Entity").getResultList();
 		for(Entity entity:entities) {
-            String className=definedClass.name().substring(0,definedClass.name().lastIndexOf(PackageType.DO.toString()) );
+            className=definedClass.name().substring(0,definedClass.name().lastIndexOf(PackageType.DO.toString()) );
 			if(className.equals(entity.getName())){
 				for(EntityAttribute entityAttribute : entity.getEntityAttributes()){
 					System.out.println("entityAttribute in miniapp: "+entityAttribute.getName());
@@ -134,6 +138,22 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 				cascade.param("value",org.hibernate.annotations.CascadeType.ALL);
 			}
 		}
+		Iterator<String> a = fields.keySet().iterator();
+	   	for(Entity entity:entities) {
+		  if(className.equals(entity.getName())) {
+			for(EntityAttribute entityAttribute : entity.getEntityAttributes()) {
+				if(entityAttribute.isPrimarykey()){
+					while ( a.hasNext()) {
+						JFieldVar field = fields.get(a.next());
+						if(field.name().equals(entityAttribute.getName())){
+							field.annotate(javax.persistence.Id.class);
+						}
+				}
+			     
+			}
+          }
+		}
+	}
 	}
 
 	@Override
@@ -160,18 +180,6 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 
 				    if(field.getType().getTypeParameters().length == 0) {
 					   JFieldVar fId=foo.field(JMod.PRIVATE, field.getType(), field.getName());
-					 if(packageType.toString() == PackageType.DO.toString()){
-					 	List<Entity> entities = entityManager.createQuery("from com.blink.designer.model.Entity").getResultList();
-					   	for(Entity entity:entities) {
-                          String className=foo.name().substring(0,foo.name().lastIndexOf(PackageType.DO.toString()) );
-						  if(className.equals(entity.getName())) {
-							for(EntityAttribute entityAttribute : entity.getEntityAttributes()) {
-								if(field.getName().equals(entityAttribute.getName()) && entityAttribute.isPrimarykey())
-							     fId.annotate(javax.persistence.Id.class);
-							}
-                          }
-						}
-			         }
 				    }
 				else {
 					foo.field(JMod.PRIVATE,getParameterizedClass(codeModel,field,packageType),field.getName());
@@ -323,5 +331,29 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 
 	public void setConfigGeneratorImpl(ConfigGeneratorImpl configGeneratorImpl) {
 		this.configGeneratorImpl = configGeneratorImpl;
+	}
+	
+	public DAOMethodGeneratorImpl getDaoMethodGenerator() {
+		return daoMethodGenerator;
+	}
+
+	public void setDaoMethodGenerator(DAOMethodGeneratorImpl daoMethodGenerator) {
+		this.daoMethodGenerator = daoMethodGenerator;
+	}
+	
+	public BizMethodGenerator getBizMethodGenerator() {
+		return bizMethodGenerator;
+	}
+
+	public void setBizMethodGenerator(BizMethodGenerator bizMethodGenerator) {
+		this.bizMethodGenerator = bizMethodGenerator;
+	}
+	
+	public ServiceMethodGenerator getServiceGenerator() {
+		return serviceGenerator;
+	}
+
+	public void setServiceGenerator(ServiceMethodGenerator serviceGenerator) {
+		this.serviceGenerator = serviceGenerator;
 	}
 }

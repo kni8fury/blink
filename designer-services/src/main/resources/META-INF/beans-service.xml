@@ -22,6 +22,12 @@ http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
     
     <bean id="configGenerator" class="com.blink.ConfigGeneratorImpl">
     </bean>
+    <bean id="daoMethodGenerator" class="com.blink.DAOMethodGeneratorImpl">
+    </bean>
+    <bean id="serviceGenerator" class="com.blink.ServiceMethodGeneratorImpl">
+    </bean>
+    <bean id="bizMethodGenerator" class="com.blink.BizMethodGeneratorImpl">
+    </bean>
     
 	<bean id="modelGenerator" class="com.blink.model.generator.ModelGenerator">
 		<property name="localRepo" value="/Users/rpoosar/localrepo/" />
@@ -38,6 +44,9 @@ http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
 
 	<bean id="smallAppGeneratorBean" class="com.blink.MiniAppGenerator">
 	    <property name="configGeneratorImpl" ref="configGenerator"></property>
+	    <property name="daoMethodGenerator" ref="daoMethodGenerator"></property>
+	    <property name="serviceGenerator" ref="serviceGenerator"></property>
+	    <property name="bizMethodGenerator" ref="bizMethodGenerator"></property>
 	</bean>
 
 	<bean id="blinkCrudServiceBean" class="com.blink.designer.service.CRUDService">

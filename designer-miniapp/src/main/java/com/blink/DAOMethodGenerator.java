@@ -11,12 +11,12 @@ public interface DAOMethodGenerator {
 			JDefinedClass daoDataClass);
 
 	public abstract void getReadDAOMethod(JDefinedClass serviceClass,
-			JDefinedClass daoDataClass);
+			JDefinedClass daoDataClass) throws ClassNotFoundException;
 
 	public abstract void getUpdateDAOMethod(JDefinedClass serviceClass,
 			JDefinedClass daoDataClass);
 
 	public abstract void getDeleteDAOMethod(JDefinedClass serviceClass,
-			JDefinedClass daoDataClass);
+			JDefinedClass daoDataClass) throws ClassNotFoundException;
 
 }

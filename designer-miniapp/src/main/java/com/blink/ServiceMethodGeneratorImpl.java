@@ -4,12 +4,17 @@ import static com.blink.CodeUtil.*;
 
 import java.lang.annotation.Annotation;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.blink.designer.model.Entity;
+import com.blink.designer.model.EntityAttribute;
 import com.sun.codemodel.JAnnotationUse;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JCodeModel;
@@ -26,16 +31,28 @@ public class ServiceMethodGeneratorImpl implements ServiceMethodGenerator{
 
 	JFieldVar mapperField; 
     JFieldVar gsonField;
+    @PersistenceContext
+	private EntityManager entityManager;
+    private String primaryType;
+    private JCodeModel codeModel;
 	public ServiceMethodGeneratorImpl() {
 
 	}
 
 	public void generateAllServiceMethods(JDefinedClass serviceClass, JDefinedClass serviceDataClass) {
-		JCodeModel codemodel=serviceClass.owner();
+	    codeModel=serviceClass.owner();
 		if( mapperField == null){
 			mapperField = serviceClass.field(JMod.PRIVATE,org.dozer.Mapper.class, "mapper");
 			mapperField.annotate(Autowired.class);
 		}
+		String className=serviceDataClass.name().substring(0,serviceDataClass.name().indexOf(PackageType.DTO.toString()));
+		Query q = entityManager.createQuery("Select c from com.blink.designer.model.Entity c where c.name = :name ");
+	    q.setParameter("name" ,className);
+	    Entity entity=(Entity) q.getSingleResult();
+	    for(EntityAttribute e : entity.getEntityAttributes()){
+	    	if(e.isPrimarykey())
+	    		primaryType=e.getPrimitiveType().getClassName();
+	    }
 		getCreateServiceMethod(serviceClass,serviceDataClass);
 		getReadServiceMethod(serviceClass,serviceDataClass);
 		getUpdateServiceMethod(serviceClass,serviceDataClass);
@@ -61,7 +78,13 @@ public class ServiceMethodGeneratorImpl implements ServiceMethodGenerator{
 
 	public void getReadServiceMethod(JDefinedClass serviceClass,JDefinedClass serviceDataClass) {
 		JMethod method  = serviceClass.method(JMod.PUBLIC, serviceDataClass,"get" +serviceDataClass.name() );
-		JVar param = method.param(Long.class, "id");
+		JVar param=null;
+		try {
+			param = method.param(codeModel.parseType(primaryType), "id");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		param.annotate(javax.ws.rs.PathParam.class).param("value", "id");
 
 		//annotateMethod(javax.ws.rs.GET.class,method,"/get" + serviceDataClass.name()+"/{id}");
@@ -96,7 +119,13 @@ public class ServiceMethodGeneratorImpl implements ServiceMethodGenerator{
 
 	public void getDeleteServiceMethod(JDefinedClass serviceClass,JDefinedClass serviceDataClass) {
 		JMethod method = serviceClass.method(JMod.PUBLIC, void.class,"delete" +serviceDataClass.name() );
-		JVar param = method.param(Long.class, "id");
+		JVar param=null;
+		try {
+			param = method.param(codeModel.parseType(primaryType), "id");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		param.annotate(javax.ws.rs.PathParam.class).param("value","id");
 
 		//annotateMethod(javax.ws.rs.DELETE.class, method,"/delete"+serviceDataClass.name()+"/{id}");
