@@ -61,6 +61,11 @@
 		<attributes>
 			<one-to-one name="primitiveType" fetch="EAGER" />
 			<one-to-one name="compositeType" fetch="EAGER"/>
+			<one-to-one name="validations" fetch="EAGER">
+			<cascade>
+					<cascade-all />
+				</cascade>
+		</one-to-one>		
 		</attributes>
 	</entity>
 	
@@ -120,6 +125,23 @@
 	</entity>
 	
 	<entity class="Type" name="Type">
+	</entity>
+	
+	<entity class="Validations" name="validations">
+	 <attributes>
+	    <id name="id"></id>
+	    <one-to-one name="size" fetch="EAGER" >
+	    <cascade>
+					<cascade-all />
+				</cascade>
+		</one-to-one>	
+	 </attributes>   
+	</entity>
+	
+	<entity class="Size" name="size">
+	 <attributes>
+	    <id name="id"></id>
+	 </attributes>   
 	</entity>
 	
 	<entity class="SecurityAPIConfig" name="SecurityAPIConfig">

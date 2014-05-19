@@ -19,6 +19,10 @@ public class EntityAttribute extends BaseBlinkModel{
 	private Entity compositeType;
 	
 	private String multiType;
+	
+	private boolean isRequired;
+	
+	private Validations validations;
 
 	public Type getPrimitiveType() {
 		return primitiveType;
@@ -49,5 +53,17 @@ public class EntityAttribute extends BaseBlinkModel{
 	}
 	public String getMultiType(){
 		return multiType;
+	}
+	public boolean isRequired() {
+		return isRequired;
+	}
+	public void setRequired(boolean isRequired) {
+		this.isRequired = isRequired;
+	}
+	public Validations getValidations() {
+		return validations;
+	}
+	public void setValidations(Validations validations) {
+		this.validations = validations;
 	}
 }

@@ -63,7 +63,7 @@ function loadApplet(code,codebase,width,height){
 	<script type="text/javascript" src="js/app-model.js"></script>
 	<script type="text/javascript" src="js/app-store.js"></script>
 	<script>
-	   
+	    var sizeIndex;
 		function createGrid(title, store, columns) {
 			  return	Ext.create('Ext.grid.Panel', {
 			        title: title,
@@ -184,7 +184,8 @@ function loadApplet(code,codebase,width,height){
             var formValues = form.getValues();
 			formValues.parentPackage  = {'id': form.findField('parentPackage.id').getValue()  };
 		    var gridData = new Array();
-		    alert(Ext.getCmp('Attributes').store.getAt(0).data.toSource());
+		    var validations = new Array();
+		    var valJSON=null;
 			for (var j=0; j<=Ext.getCmp('Attributes').getStore().getCount()-1; j++) {
 			   Ext.getCmp('Attributes').getSelectionModel().select(j,true);
 			   
@@ -209,8 +210,34 @@ function loadApplet(code,codebase,width,height){
 					   Ext.getCmp('Attributes').store.getAt(j).data.compositeType=null;
 				   
 			   }
-				
-			   
+			   var a;
+			   if(Ext.getCmp('Attributes').store.getAt(j).data.validations.id > 0){}
+			   else{
+			   for(a=0;a<Ext.getCmp('Attributes').store.getAt(j).data.validations.length;a++){
+				validations.push(Ext.getCmp('Attributes').store.getAt(j).data.validations[a]);
+			   }
+				for(a=0;a<validations.length;a++){
+					if(a>0)
+						valJSON=valJSON+",";
+					if(validations[a] == "size") {
+						if(valJSON!=null)
+						valJSON+="\"size\":{\"min\":"+ min+",\"max\":"+max+"}";
+						else
+						valJSON="\"size\":{\"min\":"+ min+",\"max\":"+max+"}";	
+					}
+					else{
+						if(valJSON!=null)
+						valJSON+="\""+validations[a]+"\":"+true;
+						else
+						valJSON="\""+validations[a]+"\":"+true;	
+					}
+				}
+				Ext.getCmp('Attributes').store.getAt(j).data.validations="{\"id\" :"+ 0 +","+valJSON+"}";	
+				alert(Ext.getCmp('Attributes').store.getAt(j).data.validations);
+				var ob=JSON.parse(Ext.getCmp('Attributes').store.getAt(j).data.validations);
+				Ext.getCmp('Attributes').store.getAt(j).data.validations=ob;
+				alert(Ext.getCmp('Attributes').store.getAt(j).data.validations.toSource());
+			   }
 			    if(Ext.getCmp('Attributes').getSelectionModel().isSelected(j)){
 			    	if(Ext.getCmp('Attributes').store.getAt(j).data.id > 0)
 		               gridData.push(Ext.getCmp('Attributes').store.getAt(j).data);
@@ -223,6 +250,7 @@ function loadApplet(code,codebase,width,height){
 			   
 			                }
 			formValues.entityAttributes = gridData;
+			alert(formValues.toSource());
 		    return formValues; 
 
 		}
@@ -541,22 +569,6 @@ function loadApplet(code,codebase,width,height){
                         	var test=window.open();
                         	test.location='http://localhost:8080/desginer-web/download?fileName='+miniApp.name;
 
-        					/*Ext.Ajax.request({
-        						url: 'http://localhost:8080/desginer-web/download?fileName='+miniApp.name,
-        						method: 'GET',
-        						headers : {
-		        					'Content-Type' : 'application/json'
-		        				},
-		        				success:function() {
-		        				alert("File Download Successful");
-		        				
-		        				Ext.getCmp('download').show();
-		        			
-		        				},
-		        				failure : function(){ alert("File downlaod failed");
-		        				 window.location.reload();
-		        				 }
-		        				});*/
                         }
                 }]
             	
@@ -564,39 +576,27 @@ function loadApplet(code,codebase,width,height){
 			
 		
 
-
-
-		
-			
-			
-			/*function saveFileToDisk(url, dest, callback) {
-			    var xhr = new XMLHttpRequest();
-
-			    xhr.onload = function() {
-			        var typedData = new Uint8Array(xhr.response),
-			            ln = typedData.length,
-			            data = new Array(ln),
-			            result;
-
-			        for (var i = 0; i < ln; i++) {
-			            data[i] = typedData[i];
-			        }
-
-			        result = Ion.io.writeFile(dest, data);
-			        callback(result.success);
-			    };
-
-			    xhr.onerror = function() {
-			        callback(false);
-			    };
-
-			    xhr.open('GET', url);
-			    xhr.responseType = 'arraybuffer';
-			    xhr.send(null);
-			}*/
-		
-
-		
+		function validationsFunction(){
+			    Ext.create('widget.window', {
+                title: 'Validation Selection',
+                closable: true,
+                closeAction: 'hide',
+                resizable: true,
+                draggable: true,
+                //animateTarget: this,
+                width: 650,
+                height: 550,
+                layout: 'border',
+                bodyStyle: 'padding: 5px;',
+                items: [{
+                    xtype: 'checkboxfield',
+                    id:  'validcheckbox',
+                    
+                   
+                }]   
+                });
+				
+			}
 		
 			
 		function newApp (item, e) {
@@ -895,21 +895,18 @@ function loadApplet(code,codebase,width,height){
                                     displayField: 'name', 
                                     valueField: 'name',
                                     listConfig: {
-                                    	  listeners: {
-                                    	      itemclick: function(list, record, combo) {
-                                    	           var combo1 = Ext.getCmp('Comp'); 
-                                    	           var combo2 = Ext.getCmp('Prim');
+                                      listeners: {
+                                    	 itemclick: function(list, record, combo) {
+                                    	    var combo1 = Ext.getCmp('Comp');
+                                    	    var combo2 = Ext.getCmp('Prim');
                                     	           if(record.get('name')=="Primitive"){
                                                      combo1.disable();
                                                      combo2.enable();
-                                    	            }
-                                    	            else{
-                                    	             combo2.disable();
+                                    	}
+                                    	else{        combo2.disable();
                                     	             combo1.enable();
-                                    	            }
-                                    	                                         
-                                    	      }
-                                    	   }} 
+                                    	}}
+}}
 
                                     
                                 })}, 
@@ -973,11 +970,46 @@ function loadApplet(code,codebase,width,height){
                                displayField: 'abbr'
                                
                                
-                            	})}
+                            	})},
+                           {text : 'Is Required',dataIndex : 'isRequired',editor: new Ext.form.field.ComboBox({
+                               typeAhead:true,
+                               triggerAction:'all',
+                               editable:true,
+                               selectOnTab:true,
+                               store:optionStore,
+                               displayField: 'name', 
+                               valueField: 'name',
+                               queryMode : 'local',
+                               lastQuery : ''
+                               
+                            	
+                                      
+                               
+                           })},
+                          {text : 'Validations',dataIndex : 'validations',editor: new Ext.form.field.ComboBox({
+                        	  typeAhead:true,
+                              triggerAction:'all',
+                              editable:true,
+                              selectOnTab:true,
+                              store:validations,
+                              displayField: 'name', 
+                              valueField: 'name',
+                              queryMode : 'local',
+                              multiSelect: true,
+                              listeners: {
+                                 'select' : function(combo,records,eOpts) {
+                                	   if(combo.getValue() == "size") {
+                                		   sizeWin.show();
+                              }
+                              }
+                              }
+                        	  
+                          })}
+                           
                             	
                             	];
 			
-
+ 
 			Ext.Ajax.request({
 				url : baseURL + 'entity/' + id,
 				method : 'GET',
@@ -1004,7 +1036,7 @@ function loadApplet(code,codebase,width,height){
 				}
 			});
 		}
-
+        
 		function createForm(title, resource, items ,submitFunction ) {
 			
 			return Ext.create('Ext.form.Panel', {
@@ -1100,7 +1132,44 @@ function loadApplet(code,codebase,width,height){
 				}
 			});
 		}
-
+        var min;
+        var max;
+		var sizeWin=Ext.create('widget.window', {
+            title: 'Size parameters',
+            closable: true,
+            closeAction: 'hide',
+            resizable: true,
+            draggable: true,
+            width: 350,
+            height: 250,
+            layout: 'anchor',
+            bodyStyle: 'padding: 5px;',
+            items: [{
+                xtype: 'textfield',
+                id:'min',
+                fieldLabel:'min'},
+                {
+               	 xtype: 'textfield',
+                 id:'max',
+                 fieldLabel:'max'
+               	 
+                }],
+                buttons : [{
+					text : 'Reset',
+					handler : function() {
+						Ext.getCmp('min').reset();
+						Ext.getCmp('max').reset();
+					}
+				}, {
+					text : 'Submit',
+					handler : function(){
+						min=Ext.getCmp('min').value;
+						max=Ext.getCmp('max').value;
+						this.up('.window').close();
+					}
+					
+            }]
+            });
 		treePanel.on('itemcontextmenu', function(view, record, item, index, event) {
 			ctxMenu.showAt(event.getXY());
 			event.stopEvent();

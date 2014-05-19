@@ -104,6 +104,7 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 		annotationUse.param("name", clazz.getSimpleName());
 		int count=0;
 		String className=null;
+		Entity presentEntity = null;
 		List<Entity> entities = entityManager.createQuery("from com.blink.designer.model.Entity").getResultList();
 		for(Entity entity:entities) {
             className=definedClass.name().substring(0,definedClass.name().lastIndexOf(PackageType.DO.toString()) );
@@ -139,10 +140,13 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 			}
 		}
 		Iterator<String> a = fields.keySet().iterator();
-	   	for(Entity entity:entities) {
-		  if(className.equals(entity.getName())) {
-			for(EntityAttribute entityAttribute : entity.getEntityAttributes()) {
-				if(entityAttribute.isPrimarykey()){
+		for(Entity entity:entities) {
+			  if(className.equals(entity.getName())) {
+				  presentEntity=entity;
+			  }
+		}
+			for(EntityAttribute entityAttribute : presentEntity.getEntityAttributes()) {
+				if(entityAttribute.isPrimarykey()) {
 					while ( a.hasNext()) {
 						JFieldVar field = fields.get(a.next());
 						if(field.name().equals(entityAttribute.getName())){
@@ -152,8 +156,19 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 			     
 			}
           }
-		}
-	}
+			Iterator<String> b = fields.keySet().iterator();
+			for(EntityAttribute entityAttribute : presentEntity.getEntityAttributes()) {
+				if(entityAttribute.isRequired()) {
+					while ( b.hasNext()) {
+						JFieldVar field = fields.get(b.next());
+						if(field.name().equals(entityAttribute.getName())){
+							field.annotate(javax.validation.constraints.NotNull.class);
+						}
+				}
+			     
+			}
+          }
+		
 	}
 
 	@Override
@@ -179,7 +194,7 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 			}else {
 
 				    if(field.getType().getTypeParameters().length == 0) {
-					   JFieldVar fId=foo.field(JMod.PRIVATE, field.getType(), field.getName());
+					   foo.field(JMod.PRIVATE, field.getType(), field.getName());
 				    }
 				else {
 					foo.field(JMod.PRIVATE,getParameterizedClass(codeModel,field,packageType),field.getName());
