@@ -129,18 +129,22 @@
 	
 	<entity class="Validations" name="validations">
 	 <attributes>
-	    <id name="id"></id>
+	    <id name="id">
+	       <generated-value strategy="AUTO"/>
+	    </id>
 	    <one-to-one name="size" fetch="EAGER" >
 	    <cascade>
-					<cascade-all />
-				</cascade>
+			<cascade-all />
+		</cascade>
 		</one-to-one>	
 	 </attributes>   
 	</entity>
 	
 	<entity class="Size" name="size">
 	 <attributes>
-	    <id name="id"></id>
+	    <id name="id">
+	        <generated-value strategy="AUTO"/>
+	    </id>
 	 </attributes>   
 	</entity>
 	

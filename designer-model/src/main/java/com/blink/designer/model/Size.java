@@ -1,9 +1,16 @@
 package com.blink.designer.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Id;
 
-public class Size{
+public class Size implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7959916313486230779L;
+
 	private long id;
 	
 	private int max;

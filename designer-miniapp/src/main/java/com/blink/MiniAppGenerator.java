@@ -130,8 +130,12 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 			
 			if( field.type().isPrimitive()) {
 
-			}else if(field.type().binaryName().startsWith(getPackageName()) )
-				field.annotate(javax.persistence.OneToOne.class);
+			}else if(field.type().binaryName().startsWith(getPackageName()) ){
+				JAnnotationUse fetch=field.annotate(javax.persistence.OneToOne.class);
+				fetch.param("fetch", javax.persistence.FetchType.EAGER);
+				JAnnotationUse cascade=field.annotate(org.hibernate.annotations.Cascade.class);
+				cascade.param("value",org.hibernate.annotations.CascadeType.ALL);
+			}
 			else if (((JClass)codeModel._ref(java.util.Collection.class)).isAssignableFrom((JClass)field.type())) {
 				JAnnotationUse fetch=field.annotate(javax.persistence.OneToMany.class);
 				fetch.param("fetch",javax.persistence.FetchType.EAGER);
@@ -139,7 +143,7 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 				cascade.param("value",org.hibernate.annotations.CascadeType.ALL);
 			}
 		}
-		Iterator<String> a = fields.keySet().iterator();
+		
 		for(Entity entity:entities) {
 			  if(className.equals(entity.getName())) {
 				  presentEntity=entity;
@@ -147,6 +151,7 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 		}
 			for(EntityAttribute entityAttribute : presentEntity.getEntityAttributes()) {
 				if(entityAttribute.isPrimarykey()) {
+					Iterator<String> a = fields.keySet().iterator();
 					while ( a.hasNext()) {
 						JFieldVar field = fields.get(a.next());
 						if(field.name().equals(entityAttribute.getName())){
@@ -155,10 +160,8 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 				}
 			     
 			}
-          }
-			Iterator<String> b = fields.keySet().iterator();
-			for(EntityAttribute entityAttribute : presentEntity.getEntityAttributes()) {
 				if(entityAttribute.isRequired()) {
+					Iterator<String> b = fields.keySet().iterator();
 					while ( b.hasNext()) {
 						JFieldVar field = fields.get(b.next());
 						if(field.name().equals(entityAttribute.getName())){
@@ -167,7 +170,52 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 				}
 			     
 			}
+				if(entityAttribute.getValidations() != null){
+				if(entityAttribute.getValidations().isAssertFalse() && entityAttribute.getValidations().isAssertFalse()) {
+					Iterator<String> c = fields.keySet().iterator();
+					while ( c.hasNext()) {
+						JFieldVar field = fields.get(c.next());
+						if(field.name().equals(entityAttribute.getName())){
+							field.annotate(javax.validation.constraints.AssertFalse.class);
+						}
+				}
+			     
+			}
+				if(entityAttribute.getValidations().isAssertTrue()) {
+					Iterator<String> d = fields.keySet().iterator();
+					while ( d.hasNext()) {
+						JFieldVar field = fields.get(d.next());
+						if(field.name().equals(entityAttribute.getName())){
+							field.annotate(javax.validation.constraints.AssertTrue.class);
+						}
+				}
+			     
+			}
+				if(entityAttribute.getValidations().isValid()) {
+					Iterator<String> d = fields.keySet().iterator();
+					while ( d.hasNext()) {
+						JFieldVar field = fields.get(d.next());
+						if(field.name().equals(entityAttribute.getName())){
+							field.annotate(javax.validation.Valid.class);
+						}
+				}
+			     
+			}
+				if(entityAttribute.getValidations().getSize() != null) {
+					Iterator<String> d = fields.keySet().iterator();
+					while ( d.hasNext()) {
+						JFieldVar field = fields.get(d.next());
+						if(field.name().equals(entityAttribute.getName())){
+							JAnnotationUse annot=field.annotate(javax.validation.constraints.Size.class);
+							annot.param("min", entityAttribute.getValidations().getSize().getMin());
+							annot.param("max",entityAttribute.getValidations().getSize().getMax());
+						}
+				}
+			     
+			}
+				
           }
+			}
 		
 	}
 

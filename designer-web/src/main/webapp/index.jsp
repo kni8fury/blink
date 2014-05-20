@@ -176,20 +176,21 @@ function loadApplet(code,codebase,width,height){
 			        }] 
 			    });
 	    }
-		
+		var minmaxCount=0;
 		function submitCreateAttributeFunction()
 		{
 			var formPanel = this.up('form');
 			var form = formPanel.getForm();
             var formValues = form.getValues();
-			formValues.parentPackage  = {'id': form.findField('parentPackage.id').getValue()  };
+            formValues.parentPackage  = {'id': form.findField('parentPackage.id').getValue()  };
 		    var gridData = new Array();
-		    var validations = new Array();
-		    var valJSON=null;
 			for (var j=0; j<=Ext.getCmp('Attributes').getStore().getCount()-1; j++) {
+			    var valJSON=null;
+			    var validations = new Array();
+			    alert(Ext.getCmp('Attributes').store.getAt(j).data.toSource());
 			   Ext.getCmp('Attributes').getSelectionModel().select(j,true);
 			   
-			   if(Ext.getCmp('Attributes').store.getAt(j).data.selectType == "Primitive"){
+			   if(Ext.getCmp('Attributes').store.getAt(j).data.selectType == "Primitive") {
 				   if(Ext.getCmp('Attributes').store.getAt(j).data.primitiveType >= 0)
 					 {
 				       var typeid=Ext.getCmp('Attributes').store.getAt(j).data.primitiveType;
@@ -211,7 +212,7 @@ function loadApplet(code,codebase,width,height){
 				   
 			   }
 			   var a;
-			   if(Ext.getCmp('Attributes').store.getAt(j).data.validations.id > 0){}
+			   if(Ext.getCmp('Attributes').store.getAt(j).data.validations.id >= 0){}
 			   else{
 			   for(a=0;a<Ext.getCmp('Attributes').store.getAt(j).data.validations.length;a++){
 				validations.push(Ext.getCmp('Attributes').store.getAt(j).data.validations[a]);
@@ -220,10 +221,12 @@ function loadApplet(code,codebase,width,height){
 					if(a>0)
 						valJSON=valJSON+",";
 					if(validations[a] == "size") {
+						minmaxCount--;
 						if(valJSON!=null)
-						valJSON+="\"size\":{\"min\":"+ min+",\"max\":"+max+"}";
+						valJSON+="\"size\":{\"id\":0,\"min\":"+ min[minmaxCount]+",\"max\":"+max[minmaxCount]+"}";
 						else
-						valJSON="\"size\":{\"min\":"+ min+",\"max\":"+max+"}";	
+						valJSON="\"size\":{\"id\":0,\"min\":"+ min[minmaxCount]+",\"max\":"+max[minmaxCount]+"}";	
+						
 					}
 					else{
 						if(valJSON!=null)
@@ -1132,8 +1135,8 @@ function loadApplet(code,codebase,width,height){
 				}
 			});
 		}
-        var min;
-        var max;
+        var min=new Array();
+        var max=new Array();
 		var sizeWin=Ext.create('widget.window', {
             title: 'Size parameters',
             closable: true,
@@ -1163,8 +1166,9 @@ function loadApplet(code,codebase,width,height){
 				}, {
 					text : 'Submit',
 					handler : function(){
-						min=Ext.getCmp('min').value;
-						max=Ext.getCmp('max').value;
+						min.push(Ext.getCmp('min').value);
+						max.push(Ext.getCmp('max').value);
+						minmaxCount++;
 						this.up('.window').close();
 					}
 					

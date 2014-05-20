@@ -47,7 +47,7 @@ var validations = Ext.create('Ext.data.Store', {
         {"abbr":"AssertTrue", "name":"assertTrue"},
         {"abbr":"AssertFalse", "name":"assertFalse"},
         {"abbr":"Valid" , "name":"valid"}
-    ]
+        ]
 });
 
 var securityAPITypes = Ext.create('Ext.data.Store', {
