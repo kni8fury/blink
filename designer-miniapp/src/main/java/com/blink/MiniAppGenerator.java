@@ -201,6 +201,26 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 				}
 			     
 			}
+				if(entityAttribute.getValidations().isEmail()) {
+					Iterator<String> d = fields.keySet().iterator();
+					while ( d.hasNext()) {
+						JFieldVar field = fields.get(d.next());
+						if(field.name().equals(entityAttribute.getName())){
+							field.annotate(org.hibernate.validator.constraints.Email.class);
+						}
+				}
+			     
+			}
+				if(entityAttribute.getValidations().isCreditCardNumber()) {
+					Iterator<String> d = fields.keySet().iterator();
+					while ( d.hasNext()) {
+						JFieldVar field = fields.get(d.next());
+						if(field.name().equals(entityAttribute.getName())){
+							field.annotate(org.hibernate.validator.constraints.CreditCardNumber.class);
+						}
+				}
+			     
+			}
 				if(entityAttribute.getValidations().getSize() != null) {
 					Iterator<String> d = fields.keySet().iterator();
 					while ( d.hasNext()) {

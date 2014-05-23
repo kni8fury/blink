@@ -65,7 +65,7 @@
 			<cascade>
 					<cascade-all />
 				</cascade>
-		</one-to-one>		
+		</one-to-one>
 		</attributes>
 	</entity>
 	

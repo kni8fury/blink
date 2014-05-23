@@ -22,7 +22,7 @@
 		
 		Ext.define('EntityAttribute', {
 			 extend: 'Ext.data.Model',
-		     fields : ['id','name','description','searchable','primitiveType','primarykey','compositeType','selectType','multiType','isRequired','validations']
+		     fields : ['id','name','description','searchable','primitiveType','primarykey','compositeType','selectType','multiType','isRequired','validations','createAction','readAction','updateAction','deleteAction']
 		} );
 		
 		Ext.define('Entity' , {

@@ -81,6 +81,11 @@
 			<version>0.9.1.2</version>
 		</dependency>
 		<dependency>
+	            <groupId>org.codehaus.sonar</groupId>
+             	<artifactId>sonar-maven-plugin</artifactId>
+	            <version>4.3</version>
+          </dependency>
+		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
 		</dependency>

@@ -17,6 +17,11 @@ public class Validations {
 	private Size size;
 	
 	private boolean valid;
+	
+	private boolean email;
+	
+	private boolean creditCardNumber;
+	
 
 	public boolean isAssertTrue() {
 		return assertTrue;
@@ -56,6 +61,22 @@ public class Validations {
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public boolean isEmail() {
+		return email;
+	}
+
+	public void setEmail(boolean email) {
+		this.email = email;
+	}
+
+	public boolean isCreditCardNumber() {
+		return creditCardNumber;
+	}
+
+	public void setCreditCardNumber(boolean creditCardNumber) {
+		this.creditCardNumber = creditCardNumber;
 	}
 	
 	

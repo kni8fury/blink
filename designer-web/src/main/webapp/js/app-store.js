@@ -46,7 +46,9 @@ var validations = Ext.create('Ext.data.Store', {
         {"abbr":"Size", "name":"size"},
         {"abbr":"AssertTrue", "name":"assertTrue"},
         {"abbr":"AssertFalse", "name":"assertFalse"},
-        {"abbr":"Valid" , "name":"valid"}
+        {"abbr":"Valid" , "name":"valid"},
+        {"abbr":"Email" , "name":"email"},
+        {"abbr":"CreditCardNumber" , "name":"creditCardNumber"}
         ]
 });
 

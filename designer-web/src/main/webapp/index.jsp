@@ -211,6 +211,10 @@ function loadApplet(code,codebase,width,height){
 					   Ext.getCmp('Attributes').store.getAt(j).data.compositeType=null;
 				   
 			   }
+			   Ext.getCmp('Attributes').store.getAt(j).data.createAction=Ext.getCmp('createAction').data;
+			   Ext.getCmp('Attributes').store.getAt(j).data.createAction=Ext.getCmp('readAction').data;
+			   Ext.getCmp('Attributes').store.getAt(j).data.createAction=Ext.getCmp('updateAction').data;
+			   Ext.getCmp('Attributes').store.getAt(j).data.createAction=Ext.getCmp('deleteAction').data;
 			   var a;
 			   if(Ext.getCmp('Attributes').store.getAt(j).data.validations.id >= 0){}
 			   else{
@@ -345,6 +349,40 @@ function loadApplet(code,codebase,width,height){
 		    height: 30,
 		    region: 'north'
 		});
+		
+		var eastPanel = Ext.create('Ext.form.Panel', {
+		    title : 'East Panel',
+			region : 'east',
+			id:'eastPanel',
+			renderTo:Ext.getBody(),
+			split : true,
+			width : 200,
+			height : 150,
+	        anchor  :'100%',
+			layout: {
+			    type:  "vbox",
+			    pack: "center"
+			},
+			align : 'center',
+			pack: 'center'
+		
+	});
+		Ext.onReady(function() {
+			eastPanel.add(createBtn,
+			{xtype:'splitter'
+	        },
+	        readBtn,
+	        {
+	            xtype:'splitter'
+	        },
+	        updateBtn,
+	        {
+	            xtype:'splitter'
+	           },
+	        deleteBtn);
+		});
+
+		
 		
 		var win ;
 		var minAppWin; 
@@ -576,30 +614,6 @@ function loadApplet(code,codebase,width,height){
                 }]
             	
 			});
-			
-		
-
-		function validationsFunction(){
-			    Ext.create('widget.window', {
-                title: 'Validation Selection',
-                closable: true,
-                closeAction: 'hide',
-                resizable: true,
-                draggable: true,
-                //animateTarget: this,
-                width: 650,
-                height: 550,
-                layout: 'border',
-                bodyStyle: 'padding: 5px;',
-                items: [{
-                    xtype: 'checkboxfield',
-                    id:  'validcheckbox',
-                    
-                   
-                }]   
-                });
-				
-			}
 		
 			
 		function newApp (item, e) {
@@ -773,16 +787,47 @@ function loadApplet(code,codebase,width,height){
 		    });
 		});
 		
+		var createBtn =  new Ext.Button({
+	        text    : 'Create',
+	        height  : 30,
+	        width   : 100,
+	        x       : 30,
+	        handler : function() {
+	        	CRUDCall('Code for Create','createAction');
+	        }
+	    });
+		var readBtn =  new Ext.Button({
+	        text    : 'Read',
+	        width   : 100,
+	        height  : 30,
+	        x       : 30,
+	        handler : function() {
+	        	CRUDCall('Code for Read','readAction');
+	        }
+	    });
+		var updateBtn =  new Ext.Button({
+	        text    : 'Update',
+	        width   : 100,
+	        height  : 30,
+	        x       : 30,
+	        handler : function() {
+	        	CRUDCall('Code for update','updateAction');
+	        }
+	    });
+		var deleteBtn =  new Ext.Button({
+	        text    : 'Delete',
+	        width   : 100,
+	        height  : 30,
+	        x       : 30,
+	        handler : function() {
+	        	CRUDCall('Code for delete','deleteAction');
+	        }
+	    });
+		
 		var viewport = new Ext.Viewport({
 			title : 'BorderLayout Demo',
 			layout : 'border',
- 			items : [ resultsPanel, treePanel, tabs, {
-				xtype : 'panel',
-				title : 'East Panel',
-				region : 'east',
-				split : true,
-				width : 200
-			}, {
+ 			items : [ resultsPanel, treePanel, tabs, eastPanel, {
 				xtype : 'panel',
 				title : 'South Panel',
 				region : 'south',
@@ -1000,10 +1045,11 @@ function loadApplet(code,codebase,width,height){
                               queryMode : 'local',
                               multiSelect: true,
                               listeners: {
-                                 'select' : function(combo,records,eOpts) {
-                                	   if(combo.getValue() == "size") {
-                                		   sizeWin.show();
-                              }
+                                 'select' : function(field,value) {
+                                	 alert("hi");
+                                     if(field.getValue() == "size"){
+                                			 sizeWin.show();
+                                	 }
                               }
                               }
                         	  
@@ -1038,6 +1084,42 @@ function loadApplet(code,codebase,width,height){
 					
 				}
 			});
+		}
+		
+		function CRUDCall(title,id){
+		 var CRUDWindow=Ext.create('widget.window', {
+            title: title,
+            closable: true,
+            closeAction: 'hide',
+            resizable: true,
+            draggable: true,
+            width: 550,
+            height: 250,
+            layout: 'anchor',
+            bodyStyle: 'padding: 5px;',
+            items: [{
+            	 xtype: 'textareafield',
+                 grow: true,
+                 name: id,
+                 id:id,
+                 fieldLabel: 'Code',
+                 anchor: '100%'
+            }
+               ],
+                buttons : [{
+					text : 'Reset',
+					handler : function() {
+						Ext.getCmp(id).reset();
+					}
+				}, {
+					text : 'Submit',
+					handler : function(){
+						this.up('.window').close();
+					}
+					
+            }]
+            });
+		 CRUDWindow.show();
 		}
         
 		function createForm(title, resource, items ,submitFunction ) {

@@ -23,6 +23,14 @@ public class EntityAttribute extends BaseBlinkModel{
 	private boolean isRequired;
 	
 	private Validations validations;
+	
+	private String createAction;
+	
+	private String readAction;
+	
+	private String updateAction;
+	
+	private String deleteAction;
 
 	public Type getPrimitiveType() {
 		return primitiveType;
@@ -65,5 +73,29 @@ public class EntityAttribute extends BaseBlinkModel{
 	}
 	public void setValidations(Validations validations) {
 		this.validations = validations;
+	}
+	public String getCreateAction() {
+		return createAction;
+	}
+	public void setCreateAction(String createAction) {
+		this.createAction = createAction;
+	}
+	public String getReadAction() {
+		return readAction;
+	}
+	public void setReadAction(String readAction) {
+		this.readAction = readAction;
+	}
+	public String getUpdateAction() {
+		return updateAction;
+	}
+	public void setUpdateAction(String updateAction) {
+		this.updateAction = updateAction;
+	}
+	public String getDeleteAction() {
+		return deleteAction;
+	}
+	public void setDeleteAction(String deleteAction) {
+		this.deleteAction = deleteAction;
 	}
 }
