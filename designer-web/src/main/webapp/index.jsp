@@ -77,7 +77,8 @@ function loadApplet(code,codebase,width,height){
 			        plugins: [
 			              rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
 			                clicksToEdit: 1, 
-			                saveBtnText : 'Update New',
+			                saveBtnText : 'Update New'
+			                
 			            })
 			        ],
 			       dockedItems: [{
@@ -119,42 +120,23 @@ function loadApplet(code,codebase,width,height){
 			                clicksToEdit: 1, 
 			                saveBtnText : 'Update New',
 			               
-			             /*  listeners: {
+			              listeners: {
 			                	edit: function(editor, e){
 			                	    var record=e.record;
 			                	    record.data.id=0;
-			                	    var typeid=record.data.type;
-			                	    record.data.type={'id':typeid};
+			                	    record.data.createAction=Ext.getCmp('createAction').getValue();
+			                	    record.data.readAction=Ext.getCmp('readAction').getValue();
+			                	    record.data.updateAction=Ext.getCmp('updateAction').getValue();
+			                	    record.data.deleteAction=Ext.getCmp('deleteAction').getValue();
 			                	    alert(record.data.toSource());
-			                	    var complete=submitCreateAttributeFunction(entityForm,record);
-			                	    alert(complete.toSource());
-			                	    
-			                	    Ext.Ajax.request({
-			             				url : baseURL + 'entity/',
-			             				method : 'POST',
-			             				headers : {
-			             					'Content-Type' : 'application/json'
-			             				},
-			             				jsonData : complete,
-			             				success:
-			             					function(){alert("Successful");},
-			             				failure:
-			             					function(){alert("Failure");},
-			             				
-			             			});
 			                	     
 			            				}
-			               				 } */
+			               				 } 
 			              
 			            			})
 			              ],
 			    					
-			                		
-			                	
-			                
-			            
-			        
-			       dockedItems: [{
+			          dockedItems: [{
 			            xtype: 'toolbar',
 			            items: [{
 			                text: 'Add',
@@ -211,10 +193,6 @@ function loadApplet(code,codebase,width,height){
 					   Ext.getCmp('Attributes').store.getAt(j).data.compositeType=null;
 				   
 			   }
-			   Ext.getCmp('Attributes').store.getAt(j).data.createAction=Ext.getCmp('createAction').data;
-			   Ext.getCmp('Attributes').store.getAt(j).data.createAction=Ext.getCmp('readAction').data;
-			   Ext.getCmp('Attributes').store.getAt(j).data.createAction=Ext.getCmp('updateAction').data;
-			   Ext.getCmp('Attributes').store.getAt(j).data.createAction=Ext.getCmp('deleteAction').data;
 			   var a;
 			   if(Ext.getCmp('Attributes').store.getAt(j).data.validations.id >= 0){}
 			   else{
