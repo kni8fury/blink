@@ -64,6 +64,18 @@ function loadApplet(code,codebase,width,height){
 	<script type="text/javascript" src="js/app-store.js"></script>
 	<script>
 	    var sizeIndex;
+	    
+	    Ext.namespace("Ext.ux");
+	    Ext.ux.comboBoxRenderer = function(combo) {
+	      return function(value) {
+	        var idx = combo.store.find(combo.valueField, value);
+	        var rec = combo.store.getAt(idx);
+	        return rec.get(combo.displayField);
+	      };
+	    }
+
+
+
 		function createGrid(title, store, columns) {
 			  return	Ext.create('Ext.grid.Panel', {
 			        title: title,
@@ -77,8 +89,7 @@ function loadApplet(code,codebase,width,height){
 			        plugins: [
 			              rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
 			                clicksToEdit: 1, 
-			                saveBtnText : 'Update New'
-			                
+			                saveBtnText : 'Update New',			                
 			            })
 			        ],
 			       dockedItems: [{
@@ -119,18 +130,75 @@ function loadApplet(code,codebase,width,height){
 			              rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
 			                clicksToEdit: 1, 
 			                saveBtnText : 'Update New',
-			               
+			            
 			              listeners: {
+			            	  click:function(){
+			            		  EntityCRUDPanel.hide=true;
+			            		  Ext.getCmp('eastPanel').add(AttributeUpdatePanel);
+			            	  },
+			            	  beforeedit: function(editor,e){
+			            		  EntityCRUDPanel.hidden=true;
+			            		  AttributeUpdatePanel.hidden=false;
+			            		  Ext.getCmp('eastPanel').add(AttributeUpdatePanel);
+			            	  },
 			                	edit: function(editor, e){
 			                	    var record=e.record;
-			                	    record.data.id=0;
-			                	    record.data.createAction=Ext.getCmp('createAction').getValue();
-			                	    record.data.readAction=Ext.getCmp('readAction').getValue();
-			                	    record.data.updateAction=Ext.getCmp('updateAction').getValue();
-			                	    record.data.deleteAction=Ext.getCmp('deleteAction').getValue();
+			                	    var valJSON=null;
+			        			    var validations = new Array();
+			        			    var valId=0;
+			                	    var sizeId=0;
 			                	    alert(record.data.toSource());
-			                	     
-			            				}
+			                	    if(Ext.getCmp('updateActionAttr') != null){
+			                	    record.data.updateActionAttr=Ext.getCmp('updateActionAttr').getValue();
+			                	    Ext.getCmp('updateActionAttr').reset();
+			                	    }
+			                        var a;
+			         			   if(record.data.validations.id >= 0){
+			         				   valId=record.data.validations.id;
+			         				  alert(valId);
+			         			   }
+			         			   else {
+			         				   valId=0;
+			         			   }
+			         			   for(a=0;a<record.data.validations.length;a++){
+			         				validations.push(record.data.validations[a]);
+			         			   }
+			         			   if(record.data.validations.size != null && record.data.validations.size.id != null){
+			         				   sizeId=record.data.validations.id;
+			         				   alert(sizeId);
+			         			   }
+			         			   else {
+			         				   sizeId=0;
+			         			   }
+			         			   
+			         				for(a=0;a<validations.length;a++){
+			         					if(a>0)
+			         						valJSON=valJSON+",";
+			         					if(validations[a] == "size") {
+			         						if(valJSON!=null)
+			         						valJSON+="\"size\":{\"id\":"+sizeId+",\"min\":"+ min+",\"max\":"+max+"}";
+			         						else
+			         						valJSON="\"size\":{\"id\":"+sizeId+",\"min\":"+ min+",\"max\":"+max+"}";	
+			         						
+			         					}
+			         					else{
+			         						if(valJSON!=null)
+			         						valJSON+="\""+validations[a]+"\":"+true;
+			         						else
+			         						valJSON="\""+validations[a]+"\":"+true;	
+			         					}
+			         				}
+			         				record.data.validations="{\"id\" :"+ valId +","+valJSON+"}";	
+			         				var ob=JSON.parse(record.data.validations);
+			         				record.data.validations=ob;
+			            				},
+			                
+			            	validateedit: function( editor, e, eOpts ){
+			            		  AttributeUpdatePanel.hidden=true;
+			            		  EntityCRUDPanel.hidden=false;
+			            		  Ext.getCmp('eastPanel').add(EntityCRUDPanel);
+			            		  
+			            	  },
 			               				 } 
 			              
 			            			})
@@ -166,10 +234,8 @@ function loadApplet(code,codebase,width,height){
             var formValues = form.getValues();
             formValues.parentPackage  = {'id': form.findField('parentPackage.id').getValue()  };
 		    var gridData = new Array();
+		   
 			for (var j=0; j<=Ext.getCmp('Attributes').getStore().getCount()-1; j++) {
-			    var valJSON=null;
-			    var validations = new Array();
-			    alert(Ext.getCmp('Attributes').store.getAt(j).data.toSource());
 			   Ext.getCmp('Attributes').getSelectionModel().select(j,true);
 			   
 			   if(Ext.getCmp('Attributes').store.getAt(j).data.selectType == "Primitive") {
@@ -193,36 +259,6 @@ function loadApplet(code,codebase,width,height){
 					   Ext.getCmp('Attributes').store.getAt(j).data.compositeType=null;
 				   
 			   }
-			   var a;
-			   if(Ext.getCmp('Attributes').store.getAt(j).data.validations.id >= 0){}
-			   else{
-			   for(a=0;a<Ext.getCmp('Attributes').store.getAt(j).data.validations.length;a++){
-				validations.push(Ext.getCmp('Attributes').store.getAt(j).data.validations[a]);
-			   }
-				for(a=0;a<validations.length;a++){
-					if(a>0)
-						valJSON=valJSON+",";
-					if(validations[a] == "size") {
-						minmaxCount--;
-						if(valJSON!=null)
-						valJSON+="\"size\":{\"id\":0,\"min\":"+ min[minmaxCount]+",\"max\":"+max[minmaxCount]+"}";
-						else
-						valJSON="\"size\":{\"id\":0,\"min\":"+ min[minmaxCount]+",\"max\":"+max[minmaxCount]+"}";	
-						
-					}
-					else{
-						if(valJSON!=null)
-						valJSON+="\""+validations[a]+"\":"+true;
-						else
-						valJSON="\""+validations[a]+"\":"+true;	
-					}
-				}
-				Ext.getCmp('Attributes').store.getAt(j).data.validations="{\"id\" :"+ 0 +","+valJSON+"}";	
-				alert(Ext.getCmp('Attributes').store.getAt(j).data.validations);
-				var ob=JSON.parse(Ext.getCmp('Attributes').store.getAt(j).data.validations);
-				Ext.getCmp('Attributes').store.getAt(j).data.validations=ob;
-				alert(Ext.getCmp('Attributes').store.getAt(j).data.validations.toSource());
-			   }
 			    if(Ext.getCmp('Attributes').getSelectionModel().isSelected(j)){
 			    	if(Ext.getCmp('Attributes').store.getAt(j).data.id > 0)
 		               gridData.push(Ext.getCmp('Attributes').store.getAt(j).data);
@@ -235,8 +271,24 @@ function loadApplet(code,codebase,width,height){
 			   
 			                }
 			formValues.entityAttributes = gridData;
-			alert(formValues.toSource());
-		    return formValues; 
+			 if(Ext.getCmp('createAction') != null){
+	        	   formValues.createAction=Ext.getCmp('createAction').getValue();
+               	   Ext.getCmp('createAction').reset();
+               	    }
+			 if(Ext.getCmp('readAction') != null){
+	        	   formValues.readAction=Ext.getCmp('readAction').getValue();
+	        	   Ext.getCmp('readAction').reset();
+			 }
+			 if(Ext.getCmp('updateAction') != null){
+	        	   formValues.updateAction=Ext.getCmp('updateAction').getValue();
+	        	   Ext.getCmp('updateAction').reset();
+	         }
+			 if(Ext.getCmp('deleteAction') != null){
+	        	   formValues.deleteAction=Ext.getCmp('deleteAction').getValue();
+	        	   Ext.getCmp('updateAction').reset();
+			 }
+			    
+	return formValues; 
 
 		}
 	  		
@@ -302,8 +354,10 @@ function loadApplet(code,codebase,width,height){
 			region : 'west',
 			listeners : {
 				itemclick : function(view, rec, item, index, eventObj) {
-					if (rec.raw.leaf == true)
+					if (rec.raw.leaf == true){
 						modifyEntityForm(rec.raw.id);
+	     				Ext.getCmp('eastPanel').add(EntityCRUDPanel);
+					}
 					else
 						createPackageForm();
 				}
@@ -319,9 +373,19 @@ function loadApplet(code,codebase,width,height){
 		var tabs = Ext.create('Ext.tab.Panel', {
 			width : 900,
 			height : 400,
+			id:'tabPanel',
 			region:'center'
 		});
 		
+		/* tabs.on('beforeremove', function(tabs, tab) {
+			EntityCRUDPanel.hidden=true;
+            var idx = tabs.items.indexOf(tab) - 1;
+            setTimeout(function() {
+                console.log(idx);
+                tabs.setActiveTab(idx);
+            }, 350);
+
+        }); */
 		
 		var resultsPanel = Ext.create('Ext.panel.Panel', {
 		    height: 30,
@@ -346,7 +410,7 @@ function loadApplet(code,codebase,width,height){
 		
 	});
 		Ext.onReady(function() {
-			eastPanel.add(createBtn,
+			EntityCRUDPanel.add(createBtn,
 			{xtype:'splitter'
 	        },
 	        readBtn,
@@ -359,7 +423,10 @@ function loadApplet(code,codebase,width,height){
 	           },
 	        deleteBtn);
 		});
-
+        
+		Ext.onReady(function() {
+			AttributeUpdatePanel.add(UpdateAttributeBtn);		
+		});
 		
 		
 		var win ;
@@ -542,7 +609,6 @@ function loadApplet(code,codebase,width,height){
 				        			
 				        				},
 				        				failure : function(){ alert("App not made");
-				        				 window.location.reload();
 				        				 }
 				        				});
 				        				},
@@ -801,6 +867,15 @@ function loadApplet(code,codebase,width,height){
 	        	CRUDCall('Code for delete','deleteAction');
 	        }
 	    });
+		var UpdateAttributeBtn =  new Ext.Button({
+	        text    : 'Update',
+	        height  : 30,
+	        width   : 100,
+	        x       : 30,
+	        handler : function() {
+	        	CRUDCall('Code when Attribute is updated','updateActionAttr');
+	        }
+	    });
 		
 		var viewport = new Ext.Viewport({
 			title : 'BorderLayout Demo',
@@ -818,6 +893,7 @@ function loadApplet(code,codebase,width,height){
 
 		function addToViewPort(panel) {
 			tabs.setActiveTab(tabs.add(panel));
+			
 		}
 		function clickHandler(item, e, eOpts) {
 			if (item.action == "newpackage")
@@ -893,11 +969,12 @@ function loadApplet(code,codebase,width,height){
         
 		var isDisabled1=false;
 		var isDisabled2=false;
-		
+		var data = null ;
+		var tabPanel=0;
 		function modifyEntityForm(id) {
-
-			var entityForm = createForm('Modify Entity', 'entity/', getEntityFormItems(),submitCreateAttributeFunction);
-			
+            
+			var entityForm = createForm('Modify Entity'+tabPanel, 'entity/', getEntityFormItems(),submitCreateAttributeFunction);
+			tabPanel++;
 			var columns = [ { text: 'id', dataIndex: 'id', hidden:true,  editor: 'textfield'},
 			               {text : 'Name',dataIndex : 'name',editor: 'textfield'}, 
 			               {text : 'Description',dataIndex : 'description',editor: 'textfield'},
@@ -949,8 +1026,31 @@ function loadApplet(code,codebase,width,height){
                                displayField: 'name', 
                                valueField: 'id',
                                queryMode : 'local',
-                               lastQuery : ''
-                               
+                               lastQuery : '',
+                               forceSelection: true,
+                               renderer: function(value) {
+                            	   
+                           	  	if (!isNaN(value)){
+                           	  		
+                           	  		if (Ext.data.StoreManager.lookup('typeStoreId').findRecord('id', value) != null) 
+                           	  			return Ext.data.StoreManager.lookup('typeStoreId').findRecord('id', value).get('name');
+                           	  		else
+                           	  			return value;   
+                           	  			 	  		
+                           	  	}
+                           	  	
+                           	  	else if (typeof value != 'undefined') {
+                           	  		if (value.name != null)
+                           	  			return value.name;
+                           	  		else
+                           	  			return "";
+                           	  	}
+                           	  	
+                           	  	else
+                           	  		return "";
+
+
+                           	  }
                             	
                                       
                                
@@ -993,7 +1093,7 @@ function loadApplet(code,codebase,width,height){
                                editable:true,
                                selectOnTab:true,
                                valueField: 'name',
-                               displayField: 'abbr'
+                               displayField: 'name'
                                
                                
                             	})},
@@ -1024,7 +1124,6 @@ function loadApplet(code,codebase,width,height){
                               multiSelect: true,
                               listeners: {
                                  'select' : function(field,value) {
-                                	 alert("hi");
                                      if(field.getValue() == "size"){
                                 			 sizeWin.show();
                                 	 }
@@ -1040,14 +1139,17 @@ function loadApplet(code,codebase,width,height){
 			Ext.Ajax.request({
 				url : baseURL + 'entity/' + id,
 				method : 'GET',
+				reader: {            
+	                  type:'json',
+	                  root: 'entity'
+	        },
 				success : function(response) {
-					var data = Ext.JSON.decode(response.responseText.trim());
+					data = Ext.JSON.decode(response.responseText.trim());
 					var form = entityForm.getForm();
 					form.findField('id').setValue(data.id);
 					form.findField('name').setValue(data.name);
 					form.findField('description').setValue(data.description);
 				    form.findField('parentPackage.id').setValue(data.parentPackage.id);
-					
 					var attributeStore = Ext.create('Ext.data.JsonStore', {
 				        model: 'EntityAttribute',
 				        data: data.entityAttributes
@@ -1098,12 +1200,54 @@ function loadApplet(code,codebase,width,height){
             }]
             });
 		 CRUDWindow.show();
+		 if(id == 'createAction')
+		    Ext.getCmp('createAction').setValue(data.createAction);
+		 else if(id == 'readAction')
+		    Ext.getCmp('readAction').setValue(data.readAction);
+		 else if(id == 'updateAction')  
+		    Ext.getCmp('updateAction').setValue(data.updateAction);
+		 else  if(id == 'deleteAction') 
+		    Ext.getCmp('deleteAction').setValue(data.deleteAction);
 		}
+		
+		var EntityCRUDPanel = Ext.create('Ext.form.Panel', {
+			region : 'east',
+			id:'entityCrudPanel',
+			autoShow:false,
+			width : 150,
+			height : 180,
+			border : false,
+	        anchor  :'100%',
+			layout: {
+			    type:  "vbox",
+			    pack: "center"
+			},
+			align : 'center',
+			pack: 'center'
+		
+	});
+		var AttributeUpdatePanel = Ext.create('Ext.form.Panel', {
+			region : 'east',
+			id:'attributeUpdatePanel',
+			autoShow:false,
+			width : 150,
+			height : 180,
+			border : false,
+	        anchor  :'100%',
+			layout: {
+			    type:  "vbox",
+			    pack: "center"
+			},
+			align : 'center',
+			pack: 'center'
+		
+	});
         
 		function createForm(title, resource, items ,submitFunction ) {
 			
 			return Ext.create('Ext.form.Panel', {
 				title : title,
+				id : title,
 				bodyPadding : 5,
 				width : 350,
 				layout : 'anchor',
@@ -1114,6 +1258,24 @@ function loadApplet(code,codebase,width,height){
 				},
 				defaultType : 'textfield',
 				items : items,
+				listeners: {
+                    /*' close' : function(tabs, tab) {
+                        var idx = tabs.items.indexOf(tab) - 1;
+                        setTimeout(function() {
+                            console.log(idx);
+                            tabs.setActiveTab(idx);
+                        }, 350);
+
+                    } */
+                   'beforeclose' : function( panel, eOpts ){
+                	   alert("hi");
+                	   var idx = tabs.items.indexOf(panel) - 1;
+                       setTimeout(function() {
+                           console.log(idx);
+                           tabs.setActiveTab(idx);
+                       }, 350);
+                   }
+                 }, 
 				buttons : [ {
 					text : 'Reset',
 					handler : function() {
@@ -1138,7 +1300,8 @@ function loadApplet(code,codebase,width,height){
 						}
 						
 					} 
-				} ]
+				}
+				]
 			});
 		}
 		function shandler()
@@ -1195,8 +1358,8 @@ function loadApplet(code,codebase,width,height){
 				}
 			});
 		}
-        var min=new Array();
-        var max=new Array();
+        var min;
+        var max;
 		var sizeWin=Ext.create('widget.window', {
             title: 'Size parameters',
             closable: true,
@@ -1226,9 +1389,8 @@ function loadApplet(code,codebase,width,height){
 				}, {
 					text : 'Submit',
 					handler : function(){
-						min.push(Ext.getCmp('min').value);
-						max.push(Ext.getCmp('max').value);
-						minmaxCount++;
+						min=Ext.getCmp('min').value;
+						max=Ext.getCmp('max').value;
 						this.up('.window').close();
 					}
 					
