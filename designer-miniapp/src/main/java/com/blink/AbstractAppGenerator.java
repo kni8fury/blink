@@ -91,12 +91,15 @@ public abstract class AbstractAppGenerator implements AppGenerator{
 	}
 
 	private void createClasses(JCodeModel jCodeModel,Class<?> clazz) throws JClassAlreadyExistsException, IOException {
+		System.out.println("creating.......");
 		createDTOClasses(jCodeModel,clazz);
 		createDOClasses(jCodeModel,clazz);
+		createActionClasses(jCodeModel,clazz,repo);
 		//createBizClasses(jCodeModel,clazz);
 	}
 	
 	
+
 
 	protected void createGetter(JDefinedClass definedClass, Field field, PackageType suffix)  {
 		String fieldName = field.getName();
@@ -289,6 +292,7 @@ public abstract class AbstractAppGenerator implements AppGenerator{
 	protected abstract void postConfig(JDefinedClass configClass);
 	protected abstract void createDOClasses(JCodeModel jCodeModel,Class<?> clazz)throws JClassAlreadyExistsException, IOException ; 
 	protected abstract void createDTOClasses(JCodeModel jCodeModel,Class<?> clazz) throws JClassAlreadyExistsException, IOException ;
+	protected abstract void createActionClasses(JCodeModel jCodeModel,Class<?> clazz, String repo2) throws JClassAlreadyExistsException, IOException ;
 
 	public void persist() throws IOException {
 		codeModel.build(new FileCodeWriter(projectRepository));
@@ -296,7 +300,7 @@ public abstract class AbstractAppGenerator implements AppGenerator{
 
 	public JDefinedClass generateConfig(App app) {
 		try {
-			JDefinedClass definedClass = codeModel._class(getPackageName()+"config." + getServiceName()+"Config");
+			JDefinedClass definedClass = codeModel._class(getPackageName()+".config." + getServiceName()+"Config");
 			config = definedClass;
 			webConfig = createConfig(definedClass,repo,app);
 			

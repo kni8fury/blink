@@ -140,6 +140,7 @@ Ext.create('Ext.form.ComboBox', {
 		});  
 		var typeStore = Ext.create('Ext.data.Store', {
 		    model: 'Type',
+		    storeId: 'typeStoreId',
 		    proxy: {
 		        type: 'ajax',
 		        url : baseURL +'type/',

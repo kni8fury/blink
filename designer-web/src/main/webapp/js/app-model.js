@@ -22,12 +22,12 @@
 		
 		Ext.define('EntityAttribute', {
 			 extend: 'Ext.data.Model',
-		     fields : ['id','name','description','searchable','primitiveType','primarykey','compositeType','selectType','multiType','isRequired','validations','createAction','readAction','updateAction','deleteAction']
+		     fields : ['id','name','description','searchable','primitiveType','primarykey','compositeType','selectType','multiType','isRequired','validations','updateActionAttr']
 		} );
 		
 		Ext.define('Entity' , {
 			 extend: 'Ext.data.Model',
-			 fields : ['id','name','description','parentPackage_id']
+			 fields : ['id','name','description','parentPackage_id','createAction','readAction','updateAction','deleteAction']
 		});
 		
 		Ext.define('Entity2',{

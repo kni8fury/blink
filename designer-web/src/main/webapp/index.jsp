@@ -1210,9 +1210,11 @@ function loadApplet(code,codebase,width,height){
 		    Ext.getCmp('deleteAction').setValue(data.deleteAction);
 		}
 		
+		var entityNum=0;
+		
 		var EntityCRUDPanel = Ext.create('Ext.form.Panel', {
 			region : 'east',
-			id:'entityCrudPanel',
+			id:'entityCrudPanel'+ (entityNum++),
 			autoShow:false,
 			width : 150,
 			height : 180,

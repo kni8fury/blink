@@ -47,8 +47,9 @@ public class BizMethodGeneratorImpl implements BizMethodGenerator{
 	    for(EntityAttribute e : entity.getEntityAttributes()){
 	    	if(e.isPrimarykey())
 	    		primaryType=e.getPrimitiveType().getClassName();
+	    else
+	    	System.out.println("Select PRIMARY KEY for the entity "+className);
 	    }
-		
 		getCreateBizMethod(serviceClass,bizClass);
 		getReadBizMethod(serviceClass,bizClass);
 		getUpdateBizMethod(serviceClass,bizClass);
@@ -66,7 +67,7 @@ public class BizMethodGeneratorImpl implements BizMethodGenerator{
 		String doMethodName = "create" + upperCamelCase(doField.name());
 		method.body().assign(doField, serviceClass.fields().get(camelCase(doFacade.name())).invoke(doMethodName).arg(doField));
 		//method.body().add();
-
+        
 		getReturnStatement(method,doField, definedBizClass);
 
 	}

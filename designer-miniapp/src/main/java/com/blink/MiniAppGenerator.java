@@ -37,11 +37,15 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 	@Autowired
 	private BizMethodGenerator bizMethodGenerator;	
 	@Autowired
-	private DAOMethodGeneratorImpl daoMethodGenerator; 
+	private DAOMethodGenerator daoMethodGenerator; 
 	@Autowired
-	private ConfigGeneratorImpl configGeneratorImpl;
+	private ConfigGenerator configGenerator;
+	@Autowired
+	private ActionMethodGenerator actionMethodGenerator;
 	@PersistenceContext
 	EntityManager entityManager;
+	
+	static private int count=0;
 	
 	public MiniAppGenerator() {
 		init();
@@ -94,7 +98,7 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 	}
 
 	protected void postConfig(JDefinedClass configClass) {
-		configGeneratorImpl.postConfig(configClass);	
+		configGenerator.postConfig(configClass);	
 	}
 	@Override
 	protected void createDOClasses(JCodeModel codeModel,Class<?> clazz) throws JClassAlreadyExistsException, IOException {
@@ -238,6 +242,25 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 			}
 		
 	}
+	
+	protected void createActionClasses(JCodeModel codeModel,Class<?> clazz,String repo) throws JClassAlreadyExistsException, IOException {
+		JPackage pack = codeModel._package(clazz.getPackage().getName()+".action");
+		JDefinedClass jDefinedClass = pack._class( clazz.getSimpleName()+"action");
+		JDefinedClass jDefinedClassAbstract=null;
+		if(count == 0){
+			actionMethodGenerator.generateAbstractAction(jDefinedClass, repo);
+			count++;
+		}
+		jDefinedClassAbstract = pack._class("AbstractAction1");
+		try {
+			actionMethodGenerator.generateAllActionMethods(jDefinedClass,jDefinedClassAbstract,repo);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+	}
 
 	@Override
 	protected void createDTOClasses(JCodeModel codeModel,Class<?> clazz)
@@ -314,7 +337,7 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 	public JDefinedClass createServiceFacade(JCodeModel codeModel) {
 		JDefinedClass serviceClass = null;
 		try{
-			serviceClass = codeModel._class(getPackageName()+ "service."+ getServiceName()+  "Service");
+			serviceClass = codeModel._class(getPackageName()+ ".service."+ getServiceName()+  "Service");
 			serviceBean(getConfig(),serviceClass);
 			addAutowiredField(serviceClass,GeneratorContext.getFacade(PackageType.BIZ));
 			Map<String, JDefinedClass> clazzes= getClasses(PackageType.DTO);
@@ -328,11 +351,12 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 		}
 		return serviceClass;
 	}
+    
 
 	public JDefinedClass createBizFacade(JCodeModel codeModel) {
 		JDefinedClass bizServiceClass =  null;
 		try{
-			bizServiceClass = codeModel._class(getPackageName()+ "biz."+ getServiceName()+  "BizService");
+			bizServiceClass = codeModel._class(getPackageName()+ ".biz."+ getServiceName()+  "BizService");
 			addBean(getConfig(),bizServiceClass);
 			addAutowiredField(bizServiceClass,GeneratorContext.getFacade(PackageType.DO));
 			List<Class<?>>  clazzes= getClassesForProcessing();
@@ -349,7 +373,7 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 	public JDefinedClass createDAOFacade(JCodeModel codeModel) {
 		JDefinedClass daoServiceClass = null;
 		try{
-			daoServiceClass = codeModel._class(getPackageName()+ "dao."+ getServiceName()+  "DAOService");
+			daoServiceClass = codeModel._class(getPackageName()+ ".dao."+ getServiceName()+  "DAOService");
 			daoServiceClass.annotate(org.springframework.transaction.annotation.Transactional.class);
 			addBean(getConfig(),daoServiceClass);
 			Map<String, JDefinedClass> clazzes= getClasses(PackageType.DO);
@@ -379,7 +403,7 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 	protected JDefinedClass createConfig(JDefinedClass definedClass,String repo,App app)throws IOException{
 		JDefinedClass dclass=null;
 		try {
-			dclass=configGeneratorImpl.generateConfig(definedClass,repo,app);
+			dclass=configGenerator.generateConfig(definedClass,repo,app);
 		} /*catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -408,19 +432,19 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 		method.body()._return(JExpr._new(bean));
 	}
 	
-	public ConfigGeneratorImpl getConfigGeneratorImpl() {
-		return configGeneratorImpl;
+	public ConfigGenerator getConfigGenerator() {
+		return configGenerator;
 	}
 
-	public void setConfigGeneratorImpl(ConfigGeneratorImpl configGeneratorImpl) {
-		this.configGeneratorImpl = configGeneratorImpl;
+	public void setConfigGenerator(ConfigGenerator configGenerator) {
+		this.configGenerator = configGenerator;
 	}
 	
-	public DAOMethodGeneratorImpl getDaoMethodGenerator() {
+	public DAOMethodGenerator getDaoMethodGenerator() {
 		return daoMethodGenerator;
 	}
 
-	public void setDaoMethodGenerator(DAOMethodGeneratorImpl daoMethodGenerator) {
+	public void setDaoMethodGenerator(DAOMethodGenerator daoMethodGenerator) {
 		this.daoMethodGenerator = daoMethodGenerator;
 	}
 	
@@ -430,6 +454,14 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 
 	public void setBizMethodGenerator(BizMethodGenerator bizMethodGenerator) {
 		this.bizMethodGenerator = bizMethodGenerator;
+	}
+	
+	public ActionMethodGenerator actionMethodGenerator(){
+		return actionMethodGenerator;
+	}
+
+	public void setActionMethodGenerator(ActionMethodGenerator actionMethodGenerator) {
+		this.actionMethodGenerator = actionMethodGenerator;
 	}
 	
 	public ServiceMethodGenerator getServiceGenerator() {
