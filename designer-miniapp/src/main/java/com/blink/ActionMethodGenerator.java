@@ -15,8 +15,8 @@ public interface ActionMethodGenerator {
 	
 	public void getDeleteActionMethod(JDefinedClass jDefinedclass,JDefinedClass abstractClass) throws Exception;
 	
-	public void generateAllActionMethods(JDefinedClass actionClass, JDefinedClass absractClass, String repo) throws Exception;
+	public JDefinedClass generateAllActionMethods(JDefinedClass actionClass, JDefinedClass absractClass, String repo) throws Exception;
 	
-	public void generateAbstractAction(JDefinedClass abstractClass,String repo)throws FileNotFoundException,IOException;
+	public JDefinedClass generateAbstractAction(JDefinedClass abstractClass,String repo)throws FileNotFoundException,IOException;
 
 }

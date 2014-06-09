@@ -46,6 +46,7 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 	EntityManager entityManager;
 	
 	static private int count=0;
+	JDefinedClass jDefinedClassAbstract;
 	
 	public MiniAppGenerator() {
 		init();
@@ -85,6 +86,7 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 				JDefinedClass serviceFacade = generateServiceFacade();
 
 				GeneratorContext.registerFacade(PackageType.DTO,serviceFacade);
+				//createActionClasses(configClass.owner());
 				postConfig(getWebConfig());
 
 			} catch (JClassAlreadyExistsException e) {
@@ -243,25 +245,6 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 		
 	}
 	
-	protected void createActionClasses(JCodeModel codeModel,Class<?> clazz,String repo) throws JClassAlreadyExistsException, IOException {
-		JPackage pack = codeModel._package(clazz.getPackage().getName()+".action");
-		JDefinedClass jDefinedClass = pack._class( clazz.getSimpleName()+"action");
-		JDefinedClass jDefinedClassAbstract=null;
-		if(count == 0){
-			actionMethodGenerator.generateAbstractAction(jDefinedClass, repo);
-			count++;
-		}
-		jDefinedClassAbstract = pack._class("AbstractAction1");
-		try {
-			actionMethodGenerator.generateAllActionMethods(jDefinedClass,jDefinedClassAbstract,repo);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-	}
-
 	@Override
 	protected void createDTOClasses(JCodeModel codeModel,Class<?> clazz)
 			throws JClassAlreadyExistsException, IOException {
@@ -355,18 +338,61 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 
 	public JDefinedClass createBizFacade(JCodeModel codeModel) {
 		JDefinedClass bizServiceClass =  null;
+		JDefinedClass jDefinedClass=null;
 		try{
 			bizServiceClass = codeModel._class(getPackageName()+ ".biz."+ getServiceName()+  "BizService");
 			addBean(getConfig(),bizServiceClass);
 			addAutowiredField(bizServiceClass,GeneratorContext.getFacade(PackageType.DO));
 			List<Class<?>>  clazzes= getClassesForProcessing();
 			for(Class<?> bizClass : clazzes) {
-				bizMethodGenerator.generateAllBizMethods(bizServiceClass, bizClass);
+				JPackage pack = codeModel._package(bizClass.getPackage().getName()+".action");
+				jDefinedClass = pack._class( bizClass.getSimpleName()+"action");
+				if(count == 0){
+					jDefinedClassAbstract=pack._class(JMod.ABSTRACT,"AbstractAction" );
+					jDefinedClassAbstract=actionMethodGenerator.generateAbstractAction(jDefinedClassAbstract, repo);
+					count++;
+				}
+				try {
+					jDefinedClass=actionMethodGenerator.generateAllActionMethods(jDefinedClass,jDefinedClassAbstract,repo);
+					addBean(getConfig(),jDefinedClass);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				bizMethodGenerator.generateAllBizMethods(bizServiceClass, bizClass,jDefinedClass);
 			}
 		}catch (JClassAlreadyExistsException ex) {
 
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return bizServiceClass;
+	}
+
+	protected void createActionClasses(JCodeModel codeModel) throws JClassAlreadyExistsException, IOException {
+		List<Class<?>>  clazzes= getClassesForProcessing();
+		for(Class<?> clazz : clazzes) {
+		JPackage pack = codeModel._package(clazz.getPackage().getName()+".action");
+		JDefinedClass jDefinedClass = pack._class( clazz.getSimpleName()+"action");
+		if(count == 0){
+			jDefinedClassAbstract=pack._class(JMod.ABSTRACT,"AbstractAction" );
+			jDefinedClassAbstract=actionMethodGenerator.generateAbstractAction(jDefinedClassAbstract, repo);
+			count++;
+		}
+		try {
+			jDefinedClass=actionMethodGenerator.generateAllActionMethods(jDefinedClass,jDefinedClassAbstract,repo);
+			addBean(getConfig(),jDefinedClass);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		}
+		
+		
 	}
 
 
@@ -426,6 +452,7 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 	
 	private void addBean(JDefinedClass definedClass,JDefinedClass bean) {
 		String beanName = CodeUtil.camelCase(bean.name());
+		System.out.println("configuring..."+beanName);
 		JMethod method = getConfig().method(JMod.PUBLIC, bean,beanName );
 		JAnnotationUse annotation = method.annotate(Bean.class);
 		annotation.param("name", CodeUtil.camelCase(bean.name()));

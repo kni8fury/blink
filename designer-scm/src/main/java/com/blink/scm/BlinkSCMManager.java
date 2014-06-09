@@ -149,6 +149,7 @@ public class BlinkSCMManager implements SCMManager {
 		Dependency d22=new Dependency();
 		Dependency d23=new Dependency();
 		Dependency d24=new Dependency();
+		Dependency d25=new Dependency();
 		MavenXpp3Writer writer = new MavenXpp3Writer();
 		
 		d1.setGroupId("org.slf4j");
@@ -271,6 +272,11 @@ public class BlinkSCMManager implements SCMManager {
 		d24.setArtifactId("hibernate-validator");
 		d24.setVersion("4.3.1.Final");
 		model.addDependency(d24);
+		
+		d25.setGroupId("javax.jms");
+		d25.setArtifactId("javax.jms-api");
+		d25.setVersion("2.0");
+		model.addDependency(d25);
 		
 		writer.write(new FileOutputStream(new File(baseDir, "/pom.xml")), model);
 		

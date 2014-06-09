@@ -5,7 +5,7 @@ import com.sun.codemodel.JDefinedClass;
 public interface BizMethodGenerator {
 
 	public abstract void generateAllBizMethods(JDefinedClass serviceClass,
-			Class<?> bizClass);
+			Class<?> bizClass, JDefinedClass jDefinedClass);
 
 	public abstract void getCreateBizMethod(JDefinedClass serviceClass,
 			Class<?> bizClass);

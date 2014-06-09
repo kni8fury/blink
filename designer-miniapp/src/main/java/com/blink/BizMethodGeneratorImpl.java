@@ -31,8 +31,9 @@ public class BizMethodGeneratorImpl implements BizMethodGenerator{
 	private EntityManager entityManager;
     private String primaryType;
     private JCodeModel codeModel;
+    JFieldVar action;
 
-	public void generateAllBizMethods(JDefinedClass serviceClass, Class<?> bizClass) {
+	public void generateAllBizMethods(JDefinedClass serviceClass, Class<?> bizClass,JDefinedClass actionClass) {
 		codeModel=serviceClass.owner();
 		
 		if( mapperField == null)
@@ -41,6 +42,8 @@ public class BizMethodGeneratorImpl implements BizMethodGenerator{
 			mapperField.annotate(Autowired.class);
 		}
 		String className=CodeUtil.upperCamelCase(bizClass.getSimpleName());
+		action=serviceClass.field(JMod.PRIVATE,actionClass, className+"action");
+		action.annotate(Autowired.class);
 		Query q = entityManager.createQuery("Select c from com.blink.designer.model.Entity c where c.name = :name ");
 	    q.setParameter("name" ,className);
 	    Entity entity=(Entity) q.getSingleResult();

@@ -94,7 +94,6 @@ public abstract class AbstractAppGenerator implements AppGenerator{
 		System.out.println("creating.......");
 		createDTOClasses(jCodeModel,clazz);
 		createDOClasses(jCodeModel,clazz);
-		createActionClasses(jCodeModel,clazz,repo);
 		//createBizClasses(jCodeModel,clazz);
 	}
 	
@@ -292,7 +291,7 @@ public abstract class AbstractAppGenerator implements AppGenerator{
 	protected abstract void postConfig(JDefinedClass configClass);
 	protected abstract void createDOClasses(JCodeModel jCodeModel,Class<?> clazz)throws JClassAlreadyExistsException, IOException ; 
 	protected abstract void createDTOClasses(JCodeModel jCodeModel,Class<?> clazz) throws JClassAlreadyExistsException, IOException ;
-	protected abstract void createActionClasses(JCodeModel jCodeModel,Class<?> clazz, String repo2) throws JClassAlreadyExistsException, IOException ;
+	protected abstract void createActionClasses(JCodeModel jCodeModel) throws JClassAlreadyExistsException, IOException ;
 
 	public void persist() throws IOException {
 		codeModel.build(new FileCodeWriter(projectRepository));
