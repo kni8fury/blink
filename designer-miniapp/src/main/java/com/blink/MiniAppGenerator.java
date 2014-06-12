@@ -347,13 +347,14 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 			for(Class<?> bizClass : clazzes) {
 				JPackage pack = codeModel._package(bizClass.getPackage().getName()+".action");
 				jDefinedClass = pack._class( bizClass.getSimpleName()+"action");
+				addAutowiredField(jDefinedClass,GeneratorContext.getFacade(PackageType.DO));
 				if(count == 0){
 					jDefinedClassAbstract=pack._class(JMod.ABSTRACT,"AbstractAction" );
 					jDefinedClassAbstract=actionMethodGenerator.generateAbstractAction(jDefinedClassAbstract, repo);
 					count++;
 				}
 				try {
-					jDefinedClass=actionMethodGenerator.generateAllActionMethods(jDefinedClass,jDefinedClassAbstract,repo);
+					jDefinedClass=actionMethodGenerator.generateAllActionMethods(jDefinedClass,jDefinedClassAbstract,bizClass);
 					addBean(getConfig(),jDefinedClass);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -372,28 +373,9 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 		}
 		return bizServiceClass;
 	}
-
-	protected void createActionClasses(JCodeModel codeModel) throws JClassAlreadyExistsException, IOException {
-		List<Class<?>>  clazzes= getClassesForProcessing();
-		for(Class<?> clazz : clazzes) {
-		JPackage pack = codeModel._package(clazz.getPackage().getName()+".action");
-		JDefinedClass jDefinedClass = pack._class( clazz.getSimpleName()+"action");
-		if(count == 0){
-			jDefinedClassAbstract=pack._class(JMod.ABSTRACT,"AbstractAction" );
-			jDefinedClassAbstract=actionMethodGenerator.generateAbstractAction(jDefinedClassAbstract, repo);
-			count++;
-		}
-		try {
-			jDefinedClass=actionMethodGenerator.generateAllActionMethods(jDefinedClass,jDefinedClassAbstract,repo);
-			addBean(getConfig(),jDefinedClass);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		}
 		
 		
-	}
+	
 
 
 	public JDefinedClass createDAOFacade(JCodeModel codeModel) {

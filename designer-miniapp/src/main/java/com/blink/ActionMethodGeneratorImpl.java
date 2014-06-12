@@ -1,14 +1,22 @@
 package com.blink;
 
+import static com.blink.CodeUtil.camelCase;
+import static com.blink.CodeUtil.getMapperMethodInvocation;
+import static com.blink.CodeUtil.upperCamelCase;
+
 import java.io.File;
+
 import javax.jms.Queue;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -17,10 +25,19 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.blink.designer.model.Entity;
+import com.blink.designer.model.EntityAttribute;
+import com.sun.codemodel.JClass;
+import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JExpression;
 import com.sun.codemodel.JFieldVar;
+import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
+import com.sun.codemodel.JType;
+import com.sun.codemodel.JTypeVar;
+import com.sun.codemodel.JVar;
 
 public class ActionMethodGeneratorImpl implements ActionMethodGenerator{
 	@PersistenceContext
@@ -28,7 +45,7 @@ public class ActionMethodGeneratorImpl implements ActionMethodGenerator{
 	
 	Entity entity;
 	
-	public JDefinedClass generateAllActionMethods(JDefinedClass actionClass,JDefinedClass abstractClass,String repo) throws Exception {
+	public JDefinedClass generateAllActionMethods(JDefinedClass actionClass,JDefinedClass abstractClass,Class<?> bizClass) throws Exception {
 		
 		String className=actionClass.name().substring(0, actionClass.name().lastIndexOf("action"));
 		System.out.println("name used in query "+className);
@@ -40,7 +57,7 @@ public class ActionMethodGeneratorImpl implements ActionMethodGenerator{
 		
 		getCreateActionMethod(actionClass,abstractClass);
     	getReadActionMethod(actionClass,abstractClass);
-    	getUpdateActionMethod(actionClass,abstractClass);
+    	getUpdateActionMethod(actionClass,abstractClass,bizClass);
     	getDeleteActionMethod(actionClass,abstractClass);
     	
     	return actionClass;
@@ -111,6 +128,7 @@ public class ActionMethodGeneratorImpl implements ActionMethodGenerator{
 		JMethod method  = actionClass.method(JMod.PUBLIC, void.class, "createAction");
 		method.param(Object.class, "obj");
 		method.annotate(Override.class);
+		if(entity.getCreateAction() != null)
 		method.body().directStatement(entity.getCreateAction());
 		
 	}
@@ -119,22 +137,59 @@ public class ActionMethodGeneratorImpl implements ActionMethodGenerator{
 		JMethod method  = actionClass.method(JMod.PUBLIC, void.class, "readAction");
 		method.param(Object.class, "obj");
 		method.annotate(Override.class);
+		if(entity.getReadAction() != null)
 		method.body().directStatement(entity.getReadAction());		
 	}
 	
-	public void getUpdateActionMethod(JDefinedClass actionClass,JDefinedClass abstractClass) throws Exception{
+	public void getUpdateActionMethod(JDefinedClass actionClass,JDefinedClass abstractClass, Class<?> bizClass) throws Exception{
+		JClass definedBizClass = actionClass.owner().ref(bizClass);
+		String primaryKey=null;
 		JMethod method  = actionClass.method(JMod.PUBLIC, void.class, "updateAction");
 		method.param(Object.class, "obj");
 		method.annotate(Override.class);
-		method.body().directStatement(entity.getUpdateAction());		
+		if(entity.getUpdateAction() != null)
+		method.body().directStatement(entity.getUpdateAction());
+		JClass doClass = definedBizClass.owner().ref(getDOFromBiz(definedBizClass,PackageType.DO));
+		JDefinedClass doFacade = GeneratorContext.getFacade(PackageType.DO);
+		String doMethodName = "get" + upperCamelCase(doClass.name());
+		for(EntityAttribute entityAttribute : entity.getEntityAttributes()){
+			if(entityAttribute.isPrimarykey()){
+				primaryKey=entityAttribute.getName();
+			}
+		}
+		String getPrimaryKey="get"+String.valueOf(primaryKey.charAt(0)).toUpperCase() + primaryKey.substring(1);
+		JVar[] a=new JVar[1];
+		a=method.listParams();
+       JVar prim=method.body().decl(definedBizClass, bizClass.getSimpleName(),JExpr.cast(definedBizClass,a[0] ));
+       //JVar doClassRef= method.body().decl(doClass, CodeUtil.camelCase(doClass.name()),actionClass.fields().get(camelCase(doFacade.name())).invoke(doMethodName).arg(JExpr.ref(primaryKey)));
+       JVar doClassRef= method.body().decl(doClass, CodeUtil.camelCase(doClass.name()),actionClass.fields().get(camelCase(doFacade.name())).invoke(doMethodName).arg(prim.invoke(getPrimaryKey)));
+       for(EntityAttribute entityAttribute : entity.getEntityAttributes()){
+       method.body()._if()
+       }
+       for(EntityAttribute entityAttribute : entity.getEntityAttributes()){
+				getUpdateAttrActionMethod(actionClass,abstractClass,entityAttribute);
+		}
 	}
 	
 	public void getDeleteActionMethod(JDefinedClass actionClass,JDefinedClass abstractClass) throws Exception{
 		JMethod method  = actionClass.method(JMod.PUBLIC, void.class, "deleteAction");
 		method.param(Object.class, "obj");
 		method.annotate(Override.class);
+		if(entity.getDeleteAction() != null)
 		method.body().directStatement(entity.getDeleteAction());		
 	}
 	
-
+	public void getUpdateAttrActionMethod(JDefinedClass actionClass,JDefinedClass abstractClass,EntityAttribute entityAttribute){
+		JMethod method = actionClass.method(JMod.PUBLIC,void.class,entityAttribute.getName()+"UpdateAction");
+		if(entityAttribute.getUpdateActionAttr() != null)
+		method.body().directStatement(entityAttribute.getUpdateActionAttr());
+	}
+	
+	private String getDOFromBiz(JClass dataClass,
+			PackageType packageType) {
+		String packageName = dataClass._package().name()+"." + packageType.toString().toLowerCase()+".";
+        return packageName+ dataClass.name()+packageType.toString();
+	}
+		
 }
+	
