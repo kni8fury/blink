@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Application;
 
 import java.io.FileOutputStream;
+import java.util.Properties;
 
 //@WebServlet("/UploadDownloadFileServlet")
 public class DownloadServlet extends javax.servlet.http.HttpServlet implements
@@ -33,7 +34,23 @@ javax.servlet.Servlet {
 	@Override  
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		String fileName = request.getParameter("fileName") + ".war";
-		filePath="/Users/rpoosar/blink/"+request.getParameter("fileName")+"/"+request.getParameter("fileName")+"/target/";
+		Properties prop = new Properties();
+    	InputStream input = null;
+		try {
+			 
+    		String filename = "blink.properties";
+    		input = this.getClass().getClassLoader().getResourceAsStream(filename);
+    		if(input==null){
+    	            System.out.println("Sorry, unable to find " + filename);
+    		    return;
+    		}
+    		prop.load(input);
+ 
+    	} catch (IOException ex) {
+    		ex.printStackTrace();
+        }
+		//filePath="/Users/rpoosar/blink/"+request.getParameter("fileName")+"/"+request.getParameter("fileName")+"/target/";
+		filePath=prop.getProperty("scm.localWorkspace")+request.getParameter("/fileName")+"/"+request.getParameter("fileName")+"/target/";
 		if(fileName == null || fileName.equals("")){
 			throw new ServletException("File Name can't be null or empty");
 		}

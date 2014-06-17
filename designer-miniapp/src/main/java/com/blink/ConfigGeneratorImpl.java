@@ -88,16 +88,14 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
 	}
 	public void generateCXFBeanFile(String repo)throws FileNotFoundException,IOException
 	{
-		String s1="/Users/rpoosar/Desktop/blink/designer-miniapp/src/main/resources/beansCXFConfig.xml";
+		//String s1="/Users/rpoosar/Desktop/blink/designer-miniapp/src/main/resources/beansCXFConfig.xml";
 		String s2=repo+"/../resources/beans.xml";
-		File source=new File(s1);
 		File dest=new File(s2);
 		System.out.println("beans path :"+s2);
 		if(!dest.exists()) {
 		    dest.createNewFile();
 		}
-		//InputStream input = this.getClass().getResourceAsStream("beansCXFConfig.xml");
-		InputStream input=new FileInputStream(source);
+		InputStream input = this.getClass().getClassLoader().getResourceAsStream("beansCXFConfig.xml");
 		OutputStream output = null;
 
 		try {
