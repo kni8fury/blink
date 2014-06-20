@@ -345,3 +345,4 @@ public abstract class AbstractAppGenerator implements AppGenerator{
 		this.config = config;
 	}
 }
+

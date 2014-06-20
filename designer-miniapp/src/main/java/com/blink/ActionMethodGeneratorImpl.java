@@ -165,13 +165,13 @@ public class ActionMethodGeneratorImpl implements ActionMethodGenerator{
        
        JVar doClassRef= method.body().decl(doClass, CodeUtil.camelCase(doClass.name()),actionClass.fields().get(camelCase(doFacade.name())).invoke(doMethodName).arg(prim.invoke(getPrimaryKey)));
        for(EntityAttribute entityAttribute : entity.getEntityAttributes()){
-    	   if(!entityAttribute.isPrimarykey()){
+    	   if(!entityAttribute.isPrimarykey() && entityAttribute.getMultiType()==null){
     	   String methodName="get"+String.valueOf(entityAttribute.getName().charAt(0)).toUpperCase() +entityAttribute.getName().substring(1);
     	   method.body()._if(prim.invoke(methodName).ne(doClassRef.invoke(methodName)))._then().block().directStatement(entityAttribute.getName()+"UpdateAction();");
        }
        }
        for(EntityAttribute entityAttribute : entity.getEntityAttributes()){
-    	   if(!entityAttribute.isPrimarykey())
+    	   if(!entityAttribute.isPrimarykey() && entityAttribute.getMultiType()==null)
 				getUpdateAttrActionMethod(actionClass,abstractClass,entityAttribute);
 		}
 	}

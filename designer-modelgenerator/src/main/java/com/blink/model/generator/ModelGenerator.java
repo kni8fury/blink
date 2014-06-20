@@ -168,10 +168,14 @@ public class ModelGenerator {
 			    typeName = entityAttribute.getCompositeType().getName();
 			}
 			else if(entityAttribute.getCompositeType() == null){
-				type=getPrimitiveType(codeModel,entityAttribute.getPrimitiveType().getName());
+				if(entityAttribute.getMultiType().equals("null"))
+				  type=getPrimitiveType(codeModel,entityAttribute.getPrimitiveType().getName());
+				else
+				  type=getPrimitiveMultiType(codeModel,entityAttribute.getPrimitiveType().getName(),entityAttribute.getMultiType());
 				fieldName =entityAttribute .getName();
 				typeName = entityAttribute.getPrimitiveType().getName();
 				}
+			System.out.println("after");
 			entityClass.field(JMod.PRIVATE,type, entityAttribute.getName());
             String getterName = ("java.lang.Boolean".equals(typeName) ? "is" : "get")+ String.valueOf(fieldName.charAt(0)).toUpperCase() + fieldName.substring(1);
 			JMethod getterMethod = entityClass.method(JMod.PUBLIC,type,getterName );
@@ -188,6 +192,10 @@ public class ModelGenerator {
 			setmethod.param(long.class,"id");
 			setmethod.body().assign(JExpr.refthis("id"), JExpr.ref("id"));*/
 		}
+	
+	private JType getPrimitiveMultiType(JCodeModel codeModel, String name,String multiType) throws ClassNotFoundException{
+    	return codeModel.parseType("java.util."+multiType+"<"+name+">");
+    }
 	
     private JType getCompositeMultiType(JCodeModel codeModel, String name,String multiType) throws ClassNotFoundException{
     	return codeModel.parseType("java.util."+multiType+"<"+name+">");

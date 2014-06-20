@@ -106,6 +106,7 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 	protected void createDOClasses(JCodeModel codeModel,Class<?> clazz) throws JClassAlreadyExistsException, IOException {
 		JDefinedClass definedClass = createClasses(codeModel,clazz,PackageType.DO);
 		definedClass.annotate(javax.persistence.Entity.class);
+		//addBean(getConfig(),definedClass);
 		JAnnotationUse annotationUse = definedClass.annotate(javax.persistence.Table.class) ;
 		annotationUse.param("name", clazz.getSimpleName());
 		int count=0;
@@ -356,6 +357,7 @@ public class MiniAppGenerator extends AbstractAppGenerator {
 				try {
 					jDefinedClass=actionMethodGenerator.generateAllActionMethods(jDefinedClass,jDefinedClassAbstract,bizClass);
 					addBean(getConfig(),jDefinedClass);
+					System.out.println("after actionmethods..");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

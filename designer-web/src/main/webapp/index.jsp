@@ -147,7 +147,7 @@ function loadApplet(code,codebase,width,height){
 			        			    var validations = new Array();
 			        			    var valId=0;
 			                	    var sizeId=0;
-			                	    alert(record.data.toSource());
+			                	    //alert(record.data.toSource());
 			                	    if(Ext.getCmp('updateActionAttr') != null){
 			                	    record.data.updateActionAttr=Ext.getCmp('updateActionAttr').getValue();
 			                	    Ext.getCmp('updateActionAttr').reset();
@@ -155,7 +155,7 @@ function loadApplet(code,codebase,width,height){
 			                        var a;
 			         			   if(record.data.validations.id >= 0){
 			         				   valId=record.data.validations.id;
-			         				  alert(valId);
+			         				  //alert(valId);
 			         			   }
 			         			   else {
 			         				   valId=0;
@@ -165,7 +165,7 @@ function loadApplet(code,codebase,width,height){
 			         			   }
 			         			   if(record.data.validations.size != null && record.data.validations.size.id != null){
 			         				   sizeId=record.data.validations.id;
-			         				   alert(sizeId);
+			         				   //alert(sizeId);
 			         			   }
 			         			   else {
 			         				   sizeId=0;
@@ -555,7 +555,7 @@ function loadApplet(code,codebase,width,height){
                         handler: function() {
                             var form = this.up('form').getForm();
 							var formData=form.getValues();
-							alert(formData.toSource());
+							//alert(formData.toSource());
 							formData.app={'id':miniApp.id};
 							var a=form.findField('jdbcURL').getValue();
 							var b=form.findField('jdbcDriver').getValue();
@@ -1270,7 +1270,7 @@ function loadApplet(code,codebase,width,height){
 
                     } */
                    'beforeclose' : function( panel, eOpts ){
-                	   alert("hi");
+                	   //alert("hi");
                 	   var idx = tabs.items.indexOf(panel) - 1;
                        setTimeout(function() {
                            console.log(idx);
@@ -1328,7 +1328,7 @@ function loadApplet(code,codebase,width,height){
 			      gridData.push(gridRecords[i].data);
 		    }
 			//formValues.entityAttributes = gridData;
-			alert(formValues.toSource());
+			//alert(formValues.toSource());
 		    return formValues; 
 		}
 		
